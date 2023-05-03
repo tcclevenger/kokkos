@@ -18,6 +18,7 @@
 #define KOKKO_SERIAL_PARALLEL_TEAM_HPP
 
 #include <Kokkos_Parallel.hpp>
+#include <impl/Kokkos_HostThreadTeam.hpp>
 
 namespace Kokkos {
 namespace Impl {

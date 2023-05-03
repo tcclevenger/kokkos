@@ -17,6 +17,9 @@
 #ifndef KOKKOS_SERIAL_WORKGRAPHPOLICY_HPP
 #define KOKKOS_SERIAL_WORKGRAPHPOLICY_HPP
 
+#include <Kokkos_Parallel.hpp>
+#include <Kokkos_WorkGraphPolicy.hpp>
+
 namespace Kokkos {
 namespace Impl {
 

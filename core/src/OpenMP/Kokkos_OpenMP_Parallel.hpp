@@ -20,10 +20,10 @@
 #include <Kokkos_Macros.hpp>
 #if defined(KOKKOS_ENABLE_OPENMP)
 
-#include <omp.h>
-#include <OpenMP/Kokkos_OpenMP_Instance.hpp>
+//#include <KokkosExp_MDRangePolicy.hpp>
+//#include <OpenMP/Kokkos_OpenMP_Instance.hpp>
+#include <OpenMP/Kokkos_OpenMP.hpp>
 
-#include <KokkosExp_MDRangePolicy.hpp>
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------

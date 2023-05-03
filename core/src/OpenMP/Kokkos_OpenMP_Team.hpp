@@ -20,6 +20,7 @@
 #include <Kokkos_Macros.hpp>
 #if defined(KOKKOS_ENABLE_OPENMP)
 
+#include <impl/Kokkos_HostThreadTeam.hpp>
 #include <OpenMP/Kokkos_OpenMP_Instance.hpp>
 
 namespace Kokkos {

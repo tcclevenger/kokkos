@@ -33,7 +33,7 @@
 
 #include <impl/Kokkos_ConcurrentBitset.hpp>
 
-#include <omp.h>
+//#include <omp.h>
 
 #include <mutex>
 #include <numeric>

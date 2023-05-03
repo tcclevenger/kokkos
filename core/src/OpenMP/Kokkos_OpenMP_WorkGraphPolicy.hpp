@@ -17,6 +17,7 @@
 #ifndef KOKKOS_OPENMP_WORKGRAPHPOLICY_HPP
 #define KOKKOS_OPENMP_WORKGRAPHPOLICY_HPP
 
+#include <Kokkos_WorkGraphPolicy.hpp>
 #include <OpenMP/Kokkos_OpenMP.hpp>
 
 namespace Kokkos {

@@ -18,6 +18,7 @@
 #define KOKKOS_OPENMP_UNIQUE_TOKEN_HPP
 
 #include <Kokkos_UniqueToken.hpp>
+#include <OpenMP/Kokkos_OpenMP.hpp>
 
 namespace Kokkos::Experimental {
 template <>

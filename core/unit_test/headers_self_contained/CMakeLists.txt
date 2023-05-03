@@ -15,9 +15,13 @@ if(Kokkos_ENABLE_SERIAL)
   file(GLOB KOKKOS_CORE_SERIAL_HEADERS RELATIVE ${BASE_DIR}/core/src
       ${BASE_DIR}/core/src/Serial/*.hpp)
 endif()
+if (Kokkos_ENABLE_OPENMP)
+  file(GLOB KOKKOS_CORE_OPENMP_HEADERS RELATIVE ${BASE_DIR}/core/src
+      ${BASE_DIR}/core/src/OpenMP/*.hpp)
+endif()
 
 foreach (_header ${KOKKOS_CORE_HEADERS} ${KOKKOS_CONTAINERS_HEADERS} ${KOKKOS_ALGORITHMS_HEADERS}
-                 ${KOKKOS_CORE_SERIAL_HEADERS})
+                 ${KOKKOS_CORE_SERIAL_HEADERS} ${KOKKOS_CORE_OPENMP_HEADERS})
   string(REGEX REPLACE "[\./]" "_" header_test_name ${_header})
   set(header_test_name Kokkos_HeaderSelfContained_${header_test_name})
   set_source_files_properties(tstHeader.cpp PROPERTIES LANGUAGE ${KOKKOS_COMPILE_LANGUAGE})

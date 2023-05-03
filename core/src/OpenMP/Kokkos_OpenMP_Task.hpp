@@ -21,9 +21,9 @@
 #if defined(KOKKOS_ENABLE_OPENMP) && defined(KOKKOS_ENABLE_TASKDAG)
 
 #include <Kokkos_TaskScheduler_fwd.hpp>
-
 #include <impl/Kokkos_HostThreadTeam.hpp>
-#include <OpenMP/Kokkos_OpenMP.hpp>
+#include <impl/Kokkos_TaskTeamMember.hpp>
+#include <OpenMP/Kokkos_OpenMP_Instance.hpp>
 
 #include <type_traits>
 #include <cassert>

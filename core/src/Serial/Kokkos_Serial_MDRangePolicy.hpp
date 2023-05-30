@@ -17,6 +17,7 @@
 #ifndef KOKKOS_SERIAL_MDRANGEPOLICY_HPP_
 #define KOKKOS_SERIAL_MDRANGEPOLICY_HPP_
 
+#include <Kokkos_Macros.hpp>
 #include <KokkosExp_MDRangePolicy.hpp>
 
 namespace Kokkos {

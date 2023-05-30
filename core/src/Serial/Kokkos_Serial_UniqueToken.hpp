@@ -17,7 +17,10 @@
 #ifndef KOKKOS_SERIAL_UNIQUE_TOKEN_HPP
 #define KOKKOS_SERIAL_UNIQUE_TOKEN_HPP
 
+#include <Kokkos_Macros.hpp>
 #include <Kokkos_UniqueToken.hpp>
+
+#include <Serial/Kokkos_Serial.hpp>
 
 namespace Kokkos {
 namespace Experimental {

@@ -4,7 +4,8 @@
 # Globbing all the header filenames to test for self-containment and presence of header guards
 SET(BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../")
 file(GLOB KOKKOS_CORE_HEADERS RELATIVE ${BASE_DIR}/core/src
-     ${BASE_DIR}/core/src/*.hpp ${BASE_DIR}/core/src/*.h)
+     ${BASE_DIR}/core/src/*.hpp
+     ${BASE_DIR}/core/src/Serial/*.hpp)
 file(GLOB KOKKOS_CONTAINERS_HEADERS RELATIVE ${BASE_DIR}/containers/src
      ${BASE_DIR}/containers/src/*.hpp)
 file(GLOB KOKKOS_ALGORITHMS_HEADERS RELATIVE  ${BASE_DIR}/algorithms/src

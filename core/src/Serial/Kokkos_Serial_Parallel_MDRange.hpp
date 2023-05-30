@@ -17,6 +17,7 @@
 #ifndef KOKKO_SERIAL_PARALLEL_MDRANGE_HPP
 #define KOKKO_SERIAL_PARALLEL_MDRANGE_HPP
 
+#include <Kokkos_Macros.hpp>
 #include <Kokkos_Parallel.hpp>
 #include <KokkosExp_MDRangePolicy.hpp>
 

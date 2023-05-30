@@ -18,13 +18,14 @@
 #define KOKKOS_IMPL_SERIAL_TASK_HPP
 
 #include <Kokkos_Macros.hpp>
+
 #if defined(KOKKOS_ENABLE_TASKDAG)
 
 #include <Kokkos_TaskScheduler_fwd.hpp>
 
-#include <Serial/Kokkos_Serial.hpp>
 #include <impl/Kokkos_HostThreadTeam.hpp>
 #include <impl/Kokkos_TaskQueue.hpp>
+#include <Serial/Kokkos_Serial.hpp>
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------

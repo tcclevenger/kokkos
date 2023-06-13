@@ -210,6 +210,8 @@ struct TestRange {
         Kokkos::RangePolicy<ExecSpace, Kokkos::Schedule<Kokkos::Dynamic> >;
     int const concurrency = ExecSpace().concurrency();
 
+    printf("CONCURRENCY: %d\n", concurrency);
+
     {
       Kokkos::View<size_t *, ExecSpace, Kokkos::MemoryTraits<Kokkos::Atomic> >
           count("Count", concurrency);

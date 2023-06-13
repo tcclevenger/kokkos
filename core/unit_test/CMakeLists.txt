@@ -113,6 +113,7 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenMPTarget;OpenACC;HIP;SYCL)
     # file. That then exceeded the shell command line max length.
     set(${Tag}_SOURCES1A)
     foreach(Name
+        RangePolicy
         Abort
         AtomicOperations_complexdouble
         AtomicOperations_complexfloat
@@ -176,7 +177,7 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenMPTarget;OpenACC;HIP;SYCL)
         Other
         ParallelScanRangePolicy
         QuadPrecisionMath
-        RangePolicy
+        #RangePolicy
         RangePolicyConstructors
         RangePolicyRequire
         ReducerCTADs

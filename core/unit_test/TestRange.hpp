@@ -168,10 +168,6 @@ struct TestRange {
   //----------------------------------------
 
   void test_reduce() {
-        int const concurrency = ExecSpace().concurrency();
-
-    printf("CONCURRENCY: %d\n", concurrency);
-
     value_type total = 0;
 
     Kokkos::parallel_for(Kokkos::RangePolicy<ExecSpace, ScheduleType>(0, N),

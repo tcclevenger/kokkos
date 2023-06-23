@@ -228,6 +228,7 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
       // This is the final block with the final result at the final threads'
       // location
 
+      printf("sizeof(word_size_type)=%d", sizeof(word_size_type))
       word_size_type* const shared =
           kokkos_impl_cuda_shared_memory<word_size_type>() +
           (blockDim.y - 1) * word_count.value;

@@ -263,7 +263,6 @@ struct CudaReductionsFunctor<FunctorType, false, true> {
     int global_elements = block_count;
     __syncthreads();
 
-    printf("Call1-");
     scalar_intra_block_reduction(functor, value, true,
                                  my_global_team_buffer_element, shared_elements,
                                  shared_team_buffer_elements);
@@ -286,7 +285,6 @@ struct CudaReductionsFunctor<FunctorType, false, true> {
            i += blockDim.x * blockDim.y) {
         functor.join(&value, &global_team_buffer_element[i]);
       }
-      printf("Call2-");
       scalar_intra_block_reduction(
           functor, value, false, shared_team_buffer_elements + (blockDim.y - 1),
           shared_elements, shared_team_buffer_elements);
@@ -372,6 +370,7 @@ struct CudaReductionsFunctor<FunctorType, false, false> {
     int global_elements = block_count;
     __syncthreads();
 
+    printf("Call-1");
     scalar_intra_block_reduction(functor, value, true,
                                  my_global_team_buffer_element, shared_elements,
                                  shared_team_buffer_elements);
@@ -395,6 +394,7 @@ struct CudaReductionsFunctor<FunctorType, false, false> {
            i += blockDim.x * blockDim.y) {
         functor.join(&value, &global_team_buffer_element[i]);
       }
+      printf("Call-2");
       scalar_intra_block_reduction(
           functor, value, false, shared_team_buffer_elements + (blockDim.y - 1),
           shared_elements, shared_team_buffer_elements);

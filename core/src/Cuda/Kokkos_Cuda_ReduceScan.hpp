@@ -350,10 +350,9 @@ struct CudaReductionsFunctor<FunctorType, false, false> {
                                   blockDim.x * blockDim.y / 32);
       if (threadIdx.x + threadIdx.y == 0) {
         *result = *shared_team_buffer_element;
-        printf("WRITE: thread_id=%d; shared+%d; value=%d\n",
+        printf("WRITE: thread_id=%d; shared+%d;\n",
                threadIdx.y * blockDim.x + threadIdx.x,
-               0,
-               *result);
+               0);
       }
     }
   }

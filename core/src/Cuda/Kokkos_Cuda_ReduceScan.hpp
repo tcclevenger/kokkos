@@ -346,7 +346,11 @@ struct CudaReductionsFunctor<FunctorType, false, false> {
       __syncwarp(0xffffffff);
       scalar_intra_warp_reduction(functor, my_shared_team_buffer_element, false,
                                   blockDim.x * blockDim.y / 32);
-      if (threadIdx.x + threadIdx.y == 0) *result = *shared_team_buffer_element;
+      if (threadIdx.x + threadIdx.y == 0) {
+        printf("WRITE: i=%d; threadIdx.y=%d; blockDim.y=%d; thread_id=%d\n",
+               threadIdx.y, blockDim.y, threadIdx.y * blockDim.x + threadIdx.x);
+        *result = *shared_team_buffer_element;
+      }
     }
   }
 

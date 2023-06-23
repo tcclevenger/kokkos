@@ -241,13 +241,12 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
             reinterpret_cast<value_type*>(shared));
       }
 
-      printf("word_count.value=%d",word_count.value);
-
       if (CudaTraits::WarpSize < word_count.value) {
         __syncthreads();
       }
 
       for (unsigned i = threadIdx.y; i < word_count.value; i += blockDim.y) {
+        printf("i=%d; threadIdx.y=%d; blockDim.y=%d\n", i, threadIdx.y, blockDim.y);
         global[i] = shared[i];
       }
     }

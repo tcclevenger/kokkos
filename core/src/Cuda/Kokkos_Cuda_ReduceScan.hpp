@@ -339,8 +339,6 @@ struct CudaReductionsFunctor<FunctorType, false, false> {
     // warp reduction
     __syncthreads();
 
-    printf("sizeof(Scalar)=%d", sizeof(Scalar));
-
     if (warp_id == 0) {
       const unsigned int delta = (threadIdx.y * blockDim.x + threadIdx.x) * 32;
       if (delta < blockDim.x * blockDim.y)

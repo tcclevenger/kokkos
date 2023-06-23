@@ -228,15 +228,6 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
       // This is the final block with the final result at the final threads'
       // location
 
-      value_type* const shared_tmp =
-          kokkos_impl_cuda_shared_memory<value_type>() +
-          (blockDim.y - 1);
-      if (threadIdx.y * blockDim.x + threadIdx.x == 1) {
-        auto tmp0 = shared_tmp[0];
-        auto tmp1 = shared_tmp[1];
-      }
-      __syncthreads();
-
       word_size_type* const shared =
           kokkos_impl_cuda_shared_memory<word_size_type>() +
           (blockDim.y - 1) * word_count.value;
@@ -259,7 +250,10 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
                threadIdx.y * blockDim.x + threadIdx.x,
                (blockDim.y - 1) * word_count.value,
                i);
-        global[i] = shared[i];
+        if (i==0) global[i] = shared[i];
+        else if (i==1) global[i] = shared[i];
+        else global[i] = shared[i];
+
       }
     }
   }

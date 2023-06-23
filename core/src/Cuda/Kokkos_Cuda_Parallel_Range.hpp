@@ -235,7 +235,7 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
         auto tmp0 = shared_tmp[0];
         auto tmp1 = shared_tmp[1];
       }
-      __sync_threads();
+      __syncthreads();
 
       word_size_type* const shared =
           kokkos_impl_cuda_shared_memory<word_size_type>() +

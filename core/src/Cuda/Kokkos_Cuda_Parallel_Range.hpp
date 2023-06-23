@@ -246,8 +246,11 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
       }
 
       for (unsigned i = threadIdx.y; i < word_count.value; i += blockDim.y) {
-        printf("READ: i=%d; threadIdx.y=%d; blockDim.y=%d; thread_id=%d\n",
-               i, threadIdx.y, blockDim.y, threadIdx.y * blockDim.x + threadIdx.x);
+        printf("READ: thread_id=%d; shared+%d; i=%d; value=%d\n",
+               threadIdx.y * blockDim.x + threadIdx.x,
+               (blockDim.y - 1) * word_count.value,
+               i,
+               shared[i]);
         global[i] = shared[i];
       }
     }

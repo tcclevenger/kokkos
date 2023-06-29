@@ -348,12 +348,6 @@ struct CudaReductionsFunctor<FunctorType, false, false> {
                                   blockDim.x * blockDim.y / 32);
       if (threadIdx.x + threadIdx.y == 0) {
         *result = *shared_team_buffer_element;
-        auto scalar_size = sizeof(Scalar);
-        printf("WRITE-INFO: result_size=%d; shared+%d\n",
-               scalar_size,
-               (blockDim.y - 1));
-        printf("WRITE: thread_id=%i;\n",
-               (threadIdx.y * blockDim.x + threadIdx.x));
       }
     }
   }

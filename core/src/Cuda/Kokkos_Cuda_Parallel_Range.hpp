@@ -250,9 +250,9 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
 
         auto word_size = sizeof(word_size_type);
         printf("READ: thread_id=%d; shared(%d)+%d; i=%d;\n",
-               threadIdx.y * blockDim.x + threadIdx.x,
+               (threadIdx.y * blockDim.x + threadIdx.x),
                word_size,
-               (blockDim.y - 1) * word_count.value,
+               ((blockDim.y - 1) * word_count.value),
                i);
       }
     }

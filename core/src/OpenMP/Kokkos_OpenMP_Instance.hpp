@@ -73,6 +73,8 @@ class OpenMPInternal {
 
   static OpenMPInternal& singleton();
 
+  void output_dev_id(const std::string label) const { (void)label; }
+
   void initialize(int thread_cound);
 
   void finalize();

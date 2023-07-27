@@ -118,6 +118,15 @@ class HIPInternal {
 
   static HIPInternal &singleton();
 
+  void output_dev_id(const std::string label) const {
+    int dev_id, dev_count;
+    KOKKOS_IMPL_HIP_SAFE_CALL(hipGetDevice(&dev_id));
+    KOKKOS_IMPL_HIP_SAFE_CALL(hipGetDeviceCount(&dev_count));
+
+    printf("%s DeviceID: %d, DeviceCount: %d, InternalDevId: %d\n",
+           label.c_str(), dev_id, dev_count, m_hipDev);
+  }
+
   int verify_is_initialized(const char *const label) const;
 
   int is_initialized() const {

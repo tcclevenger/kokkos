@@ -59,6 +59,8 @@ class SerialInternal {
 
   static SerialInternal& singleton();
 
+  void output_dev_id(const std::string label) const { (void)label; }
+
   std::mutex m_thread_team_data_mutex;
 
   // Resize thread team data scratch memory

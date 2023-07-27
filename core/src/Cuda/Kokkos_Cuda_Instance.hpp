@@ -153,6 +153,15 @@ class CudaInternal {
 
   static CudaInternal& singleton();
 
+  void output_dev_id(const std::string label) const {
+    int dev_id, dev_count;
+    KOKKOS_IMPL_CUDA_SAFE_CALL(cudaGetDevice(&dev_id));
+    KOKKOS_IMPL_CUDA_SAFE_CALL(cudaGetDeviceCount(&dev_count));
+
+    printf("%s DeviceID: %d, DeviceCount: %d, InternalDevId: %d\n",
+           label.c_str(), dev_id, dev_count, m_cudaDev);
+  }
+
   int verify_is_initialized(const char* const label) const;
 
   int is_initialized() const {

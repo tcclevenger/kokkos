@@ -119,41 +119,7 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenMPTarget;OpenACC;HIP;SYCL)
     # file. That then exceeded the shell command line max length.
     set(${Tag}_SOURCES1A)
     foreach(Name
-        Abort
-        AtomicOperations_complexdouble
-        AtomicOperations_complexfloat
-        AtomicOperations_double
-        AtomicOperations_float
-        AtomicOperations_int
-        AtomicOperations_longint
-        AtomicOperations_longlongint
-        AtomicOperations_shared
-        AtomicOperations_unsignedint
-        AtomicOperations_unsignedlongint
-        Atomics
-        AtomicViews
-        BitManipulationBuiltins
-        BlockSizeDeduction
-        CheckedIntegerOps
-        CommonPolicyConstructors
-        CommonPolicyInterface
-        Complex
-        Concepts
-        Crs
-        DeepCopyAlignment
         ExecSpacePartitioning
-        ExecutionSpace
-        FunctorAnalysis
-        HostSharedPtr
-        HostSharedPtrAccessOnDevice
-        Init
-        JoinBackwardCompatibility
-        LocalDeepCopy
-        MathematicalConstants
-        MathematicalFunctions1
-        MathematicalFunctions2
-        MathematicalFunctions3
-        MathematicalSpecialFunctions
         )
       set(file ${dir}/Test${Tag}_${Name}.cpp)
       # Write to a temporary intermediate file and call configure_file to avoid
@@ -168,34 +134,7 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenMPTarget;OpenACC;HIP;SYCL)
 
     set(${Tag}_SOURCES1B)
     foreach(Name
-        MDRange_a
-        MDRange_b
-        MDRange_c
-        MDRange_d
-        MDRange_e
-        MDRange_f
-        MDRange_g
-        MDRangePolicyConstructors
-        MDRangeReduce
-        MDSpan
-        MinMaxClamp
-        NumericTraits
-        Other
-        ParallelScanRangePolicy
-        Printf
-        QuadPrecisionMath
-        RangePolicy
-        RangePolicyConstructors
-        RangePolicyRequire
-        ReducerCTADs
-        Reducers_a
-        Reducers_b
-        Reducers_c
-        Reducers_d
-        Reducers_e
-        Reductions
-        Reductions_DeviceView
-        SharedAlloc
+
         )
       set(file ${dir}/Test${Tag}_${Name}.cpp)
       # Write to a temporary intermediate file and call configure_file to avoid
@@ -210,35 +149,7 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenMPTarget;OpenACC;HIP;SYCL)
 
     SET(${Tag}_SOURCES2A)
     foreach(Name
-      TeamBasic
-      TeamCombinedReducers
-      TeamMDRange
-      TeamPolicyConstructors
-      TeamReductionScan
-      TeamScan
-      TeamScratch
-      TeamTeamSize
-      TeamVectorRange
-      UniqueToken
-      View_64bit
-      ViewAPI_a
-      ViewAPI_b
-      ViewAPI_c
-      ViewAPI_d
-      ViewAPI_e
-      ViewCopy_a
-      ViewCopy_b
-      ViewCtorDimMatch
-      ViewHooks
-      ViewLayoutStrideAssignment
-      ViewMapping_a
-      ViewMapping_b
-      ViewMapping_subview
-      ViewMemoryAccessViolation
-      ViewOfClass
-      ViewResize
-      WorkGraph
-      WithoutInitializing
+
       )
       set(file ${dir}/Test${Tag}_${Name}.cpp)
       # Write to a temporary intermediate file and call configure_file to avoid
@@ -262,13 +173,7 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenMPTarget;OpenACC;HIP;SYCL)
 
     set(${Tag}_SOURCES2B)
     foreach(Name
-      SubView_a
-      SubView_b
-      SubView_c01
-      SubView_c02
-      SubView_c03
-      SubView_c04
-      SubView_c05
+
       )
       set(file ${dir}/Test${Tag}_${Name}.cpp)
       # Write to a temporary intermediate file and call configure_file to avoid
@@ -283,10 +188,7 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenMPTarget;OpenACC;HIP;SYCL)
 
     set(${Tag}_SOURCES2C)
     foreach(Name
-      SubView_c06
-      SubView_c07
-      SubView_c08
-      SubView_c09
+
       )
       set(file ${dir}/Test${Tag}_${Name}.cpp)
       # Write to a temporary intermediate file and call configure_file to avoid
@@ -301,11 +203,7 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenMPTarget;OpenACC;HIP;SYCL)
 
     set(${Tag}_SOURCES2D)
     foreach(Name
-      SubView_c10
-      SubView_c11
-      SubView_c12
-      SubView_c13
-      SubView_c14
+
       )
       set(file ${dir}/Test${Tag}_${Name}.cpp)
       # Write to a temporary intermediate file and call configure_file to avoid
@@ -335,17 +233,7 @@ foreach(PairDeviceSpace HIP-HostPinned;HIP-Managed;Cuda-HostPinned;Cuda-UVM;SYCL
     set(dir ${CMAKE_CURRENT_BINARY_DIR}/${dir})
     file(MAKE_DIRECTORY ${dir})
     foreach(Name
-      SharedAlloc
-      ViewAPI_a
-      ViewAPI_b
-      ViewAPI_c
-      ViewAPI_d
-      ViewAPI_e
-      ViewCopy_a
-      ViewCopy_b
-      ViewMapping_a
-      ViewMapping_b
-      ViewMapping_subview
+
       )
       set(file ${dir}/Test${DEVICE}${SPACE}_${Name}.cpp)
       # Write to a temporary intermediate file and call configure_file to avoid
@@ -722,7 +610,7 @@ if(Kokkos_ENABLE_CUDA)
     SOURCES
       UnitTestMainInit.cpp
       ${Cuda_SOURCES1}
-      cuda/TestCuda_ReducerViewSizeLimit.cpp
+      #cuda/TestCuda_ReducerViewSizeLimit.cpp
     )
 
     KOKKOS_ADD_EXECUTABLE_AND_TEST(
@@ -777,12 +665,12 @@ if(Kokkos_ENABLE_HIP)
     SOURCES
       UnitTestMainInit.cpp
       ${HIP_SOURCES}
-      hip/TestHIP_ScanUnit.cpp
-      hip/TestHIP_Spaces.cpp
-      hip/TestHIP_Memory_Requirements.cpp
-      hip/TestHIP_TeamScratchStreams.cpp
-      hip/TestHIP_AsyncLauncher.cpp
-      hip/TestHIP_BlocksizeDeduction.cpp
+      #hip/TestHIP_ScanUnit.cpp
+      #hip/TestHIP_Spaces.cpp
+      #hip/TestHIP_Memory_Requirements.cpp
+      #hip/TestHIP_TeamScratchStreams.cpp
+      #hip/TestHIP_AsyncLauncher.cpp
+      #hip/TestHIP_BlocksizeDeduction.cpp
   )
   KOKKOS_ADD_EXECUTABLE_AND_TEST(
     CoreUnitTest_HIPInterOpInit

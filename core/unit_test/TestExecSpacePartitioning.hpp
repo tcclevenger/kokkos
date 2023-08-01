@@ -84,8 +84,10 @@ void run_threaded_test(const Lambda1 l1, const Lambda2 l2) {
 
 void test_partitioning(std::vector<TEST_EXECSPACE>& instances) {
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
-  instances[0].impl_internal_space_instance()->output_dev_id("Before thread launch:");
-  instances[1].impl_internal_space_instance()->output_dev_id("Before thread launch:");
+  instances[0].impl_internal_space_instance()->output_dev_id(
+      "Before thread launch:");
+  instances[1].impl_internal_space_instance()->output_dev_id(
+      "Before thread launch:");
 #endif
   check_distinctive(instances[0], instances[1]);
   int sum1, sum2;

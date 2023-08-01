@@ -649,7 +649,6 @@ struct CudaParallelLaunchImpl<
   inline static void launch_kernel(const DriverType& driver, const dim3& grid,
                                    const dim3& block, int shmem,
                                    const CudaInternal* cuda_instance) {
-
     cuda_instance->output_dev_id("During kernel launch:");
 
     if (!Impl::is_empty_launch(grid, block)) {

@@ -486,8 +486,7 @@ void hip_parallel_launch(const DriverType &driver, const dim3 &grid,
                          const dim3 &block, const int shmem,
                          const HIPInternal *hip_instance,
                          const bool prefer_shmem) {
-
-hip_instance->output_dev_id("During kernel launch:");
+  hip_instance->output_dev_id("During kernel launch:");
 
 #ifndef KOKKOS_ENABLE_HIP_MULTIPLE_KERNEL_INSTANTIATIONS
   HIPParallelLaunch<DriverType, LaunchBounds, LaunchMechanism>(

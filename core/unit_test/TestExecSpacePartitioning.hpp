@@ -95,6 +95,7 @@ void test_partitioning(std::vector<TEST_EXECSPACE>& instances) {
   Kokkos::View<double*> additional_sum("additional_sum", 100);
   Kokkos::View<double*> write_sum("write_sum", 200);
   Kokkos::deep_copy(additional_sum, 1);
+  Kokkos::deep_copy(write_sum, 0);
   run_threaded_test(
       [&]() {
         Kokkos::parallel_reduce(

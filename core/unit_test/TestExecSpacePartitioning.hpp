@@ -92,14 +92,17 @@ void test_partitioning(std::vector<TEST_EXECSPACE>& instances) {
   check_distinctive(instances[0], instances[1]);
   int sum1, sum2;
   int N = 3910;
-  Kokkos::View<double*> additional_sum("additional_sum", N);
+  Kokkos::View<double*> additional_sum("additional_sum", 100);
+  Kokkos::View<double*> write_sum("write_sum", 200);
   Kokkos::deep_copy(additional_sum, 1);
   run_threaded_test(
       [&]() {
         Kokkos::parallel_reduce(
             Kokkos::RangePolicy<TEST_EXECSPACE>(instances[0], 0, N),
             KOKKOS_LAMBDA(int i, int& lsum) {
-              lsum += (i + additional_sum(i));
+              const auto add = i < 100 ? additional_sum(i) : 0;
+              lsum += (i + add);
+              if (i < 100) write_sum(i) = lsum;
             },
             sum1);
       },
@@ -107,12 +110,14 @@ void test_partitioning(std::vector<TEST_EXECSPACE>& instances) {
         Kokkos::parallel_reduce(
             Kokkos::RangePolicy<TEST_EXECSPACE>(instances[1], 0, N),
             KOKKOS_LAMBDA(int i, int& lsum) {
-              lsum += (i + additional_sum(i));
+              const auto add = i < 100 ? additional_sum(i) : 0;
+              lsum += (i + add);
+              if (i >= 100 && i < 200) write_sum(i) = lsum;
             },
             sum2);
       });
   ASSERT_EQ(sum1, sum2);
-  ASSERT_EQ(sum1, (N * (N - 1) / 2) + N);
+  ASSERT_EQ(sum1, (N * (N - 1) / 2) + 100);
 
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP) || \
     defined(KOKKOS_ENABLE_SYCL) || defined(KOKKOS_ENABLE_OPENMP)

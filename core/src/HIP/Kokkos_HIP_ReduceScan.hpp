@@ -185,8 +185,8 @@ struct HIPReductionsFunctor<FunctorType, false> {
           functor, my_shared_team_buffer_element, false,
           blockDim.x * blockDim.y / HIPTraits::WarpSize);
       if (threadIdx.x + threadIdx.y == 0) {
-        printf("Write result: Tx=%d, Ty=%d, Add=%p, size=%d, skip=%s\n",
-               (int)threadIdx.x,(int)threadIdx.y,&(*result),sizeof(Scalar),"F");
+        printf("Write result: Tx=%d, Ty=%d, Add=%p, size=%d, skip=%d\n",
+               (int)threadIdx.x,(int)threadIdx.y,&(*result),sizeof(Scalar),skip);
         *result = *shared_team_buffer_element;
         if (skip) __threadfence();
       }

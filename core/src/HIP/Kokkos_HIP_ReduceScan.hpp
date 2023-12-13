@@ -186,7 +186,7 @@ struct HIPReductionsFunctor<FunctorType, false> {
           blockDim.x * blockDim.y / HIPTraits::WarpSize);
       if (threadIdx.x + threadIdx.y == 0) {
 	//Kokkos::printf("  Write result: Tx=%d, Ty=%d, Add=%p, size=%d, skip=%s\n",threadIdx.x,threadIdx.y,&(*result),sizeof(Scalar),skip?"T":"F");
-        printf("  Write result: Tx=%d, Ty=, Add=, size=, skip=\n",1/*threadIdx.x*/);
+        printf("  Write result: Tx=%d, Ty=, Add=, size=, skip=\n",(int)threadIdx.x);
         *result = *shared_team_buffer_element;
         if (skip) __threadfence();
       }

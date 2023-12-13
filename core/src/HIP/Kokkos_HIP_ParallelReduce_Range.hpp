@@ -157,7 +157,8 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
       }
 
       for (unsigned i = threadIdx.y; i < word_count.value; i += blockDim.y) {
-	Kokkos::printf("  Read shared: i=%d, Tx=%d, Ty=%d, Add=%p, size=%d\n",i,threadIdx.x,threadIdx.y,&(shared[i]),sizeof(word_size_type));
+	//Kokkos::printf("Read shared: i=%d, Tx=%d, Ty=%d, Add=%p, size=%d\n",i,threadIdx.x,threadIdx.y,&(shared[i]),sizeof(word_size_type));
+        Kokkos::printf("Read shared: i=, Tx=, Ty=, Add=, size=\n");
         global[i] = shared[i];
       }
     }

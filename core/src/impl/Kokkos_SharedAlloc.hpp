@@ -330,20 +330,105 @@ class HostInaccessibleSharedAllocationRecordCommon
       MemorySpace const& space, std::string const& label, std::size_t size,
       record_base_t::function_type dealloc = &deallocate);
 
+  template <class ExecutionSpace>
+  static auto allocate(ExecutionSpace const& exec_space,
+                       MemorySpace const& arg_space,
+                       std::string const& arg_label, size_t arg_alloc_size)
+      -> derived_t* {
+    return new derived_t(exec_space, arg_space, arg_label, arg_alloc_size);
+  }
+
   static auto allocate(MemorySpace const& arg_space,
                        std::string const& arg_label, size_t arg_alloc_size)
       -> derived_t*;
+
   /**\brief  Allocate tracked memory in the space */
+  template <class ExecutionSpace>
+  static void* allocate_tracked(ExecutionSpace const& exec_space,
+                                MemorySpace const& arg_space,
+                                std::string const& arg_alloc_label,
+                                size_t arg_alloc_size) {
+    if (!arg_alloc_size) return nullptr;
+
+    SharedAllocationRecord* const r =
+        allocate(exec_space, arg_space, arg_alloc_label, arg_alloc_size);
+
+    record_base_t::increment(r);
+
+    return r->data();
+  }
+
   static void* allocate_tracked(MemorySpace const& arg_space,
                                 std::string const& arg_alloc_label,
                                 size_t arg_alloc_size);
+
   /**\brief  Reallocate tracked memory in the space */
+  template <class ExecutionSpace>
+  static void deallocate_tracked(ExecutionSpace const& exec_space,
+                                 void* arg_alloc_ptr) {
+    if (arg_alloc_ptr != nullptr) {
+      SharedAllocationRecord* const r =
+          derived_t::get_record(exec_space, arg_alloc_ptr);
+      record_base_t::decrement(r);
+    }
+  }
+
   static void deallocate_tracked(void* arg_alloc_ptr);
+
   /**\brief  Deallocate tracked memory in the space */
+  template <class ExecutionSpace>
+  static void* reallocate_tracked(ExecutionSpace const& exec_space,
+                                  void* arg_alloc_ptr, size_t arg_alloc_size) {
+    derived_t* const r_old = derived_t::get_record(exec_space, arg_alloc_ptr);
+    derived_t* const r_new = allocate(exec_space, r_old->m_space,
+                                      r_old->get_label(), arg_alloc_size);
+
+    Kokkos::Impl::DeepCopy<MemorySpace, MemorySpace>(
+        exec_space, r_new->data(), r_old->data(),
+        std::min(r_old->size(), r_new->size()));
+    Kokkos::fence(std::string("SharedAllocationRecord<") + MemorySpace::name() +
+                  ", void>::reallocate_tracked(): fence after copying data");
+
+    record_base_t::increment(r_new);
+    record_base_t::decrement(r_old);
+
+    return r_new->data();
+  }
+
   static void* reallocate_tracked(void* arg_alloc_ptr, size_t arg_alloc_size);
 
   static void print_records(std::ostream& s, MemorySpace const&,
                             bool detail = false);
+
+  template <class ExecutionSpace>
+  static auto get_record(ExecutionSpace const& exec_space, void* alloc_ptr)
+      -> derived_t* {
+    // Copy the header from the allocation
+    SharedAllocationHeader head;
+
+    SharedAllocationHeader const* const head_cuda =
+        alloc_ptr ? SharedAllocationHeader::get_header(alloc_ptr) : nullptr;
+
+    if (alloc_ptr) {
+      Kokkos::Impl::DeepCopy<HostSpace, MemorySpace, ExecutionSpace>(
+          exec_space, &head, head_cuda, sizeof(SharedAllocationHeader));
+      exec_space.fence(
+          "HostInaccessibleSharedAllocationRecordCommon::get_record(): fence "
+          "after copying header to HostSpace");
+    }
+
+    derived_t* const record =
+        alloc_ptr ? static_cast<derived_t*>(head.m_record) : nullptr;
+
+    if (!alloc_ptr || record->m_alloc_ptr != head_cuda) {
+      Kokkos::Impl::throw_runtime_exception(
+          std::string("Kokkos::Impl::SharedAllocationRecord<") +
+          std::string(MemorySpace::name()) +
+          std::string(", void>::get_record ERROR"));
+    }
+
+    return record;
+  }
   static auto get_record(void* alloc_ptr) -> derived_t*;
   std::string get_label() const;
 };

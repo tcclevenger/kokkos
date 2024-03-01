@@ -428,11 +428,13 @@ void *CudaInternal::resize_team_scratch_space(int scratch_pool_id,
   // Multiple ParallelFor/Reduce Teams can call this function at the same time
   // and invalidate the m_team_scratch_ptr. We use a pool to avoid any race
   // condition.
+  auto mem_space = Kokkos::CudaSpace::impl_create(m_cudaDev, m_stream);
+  Kokkos::Cuda exec_space(m_stream);
   if (m_team_scratch_current_size[scratch_pool_id] == 0) {
     m_team_scratch_current_size[scratch_pool_id] = bytes;
     m_team_scratch_ptr[scratch_pool_id] =
         Kokkos::kokkos_malloc<Kokkos::CudaSpace>(
-            "Kokkos::CudaSpace::TeamScratchMemory",
+            exec_space, mem_space, "Kokkos::CudaSpace::TeamScratchMemory",
             m_team_scratch_current_size[scratch_pool_id]);
   }
   if ((bytes > m_team_scratch_current_size[scratch_pool_id]) ||
@@ -441,7 +443,7 @@ void *CudaInternal::resize_team_scratch_space(int scratch_pool_id,
     m_team_scratch_current_size[scratch_pool_id] = bytes;
     m_team_scratch_ptr[scratch_pool_id] =
         Kokkos::kokkos_realloc<Kokkos::CudaSpace>(
-            m_team_scratch_ptr[scratch_pool_id],
+            exec_space, m_team_scratch_ptr[scratch_pool_id],
             m_team_scratch_current_size[scratch_pool_id]);
   }
   return m_team_scratch_ptr[scratch_pool_id];
@@ -614,6 +616,16 @@ Kokkos::Cuda::initialize WARNING: Cuda is allocating into UVMSpace by default
   desul::Impl::init_lock_arrays();  // FIXME
 
   Impl::CudaInternal::singleton().initialize(singleton_stream);
+}
+
+void Cuda::free_scratch() {
+  for (int i = 0; i < m_space_instance->m_n_team_scratch; ++i) {
+    if (m_space_instance->m_team_scratch_current_size[i] > 0)
+      Kokkos::kokkos_free<Kokkos::CudaSpace>(
+          *this, m_space_instance->m_team_scratch_ptr[i]);
+    m_space_instance->m_team_scratch_current_size[i] = 0;
+    m_space_instance->m_team_scratch_ptr[i]          = nullptr;
+  }
 }
 
 void Cuda::impl_finalize() {

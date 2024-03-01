@@ -150,6 +150,15 @@ namespace Kokkos {
  * leaked memory can be identified.
  */
 template <class Space = Kokkos::DefaultExecutionSpace::memory_space>
+inline void* kokkos_malloc(const typename Space::execution_space& exec_space,
+                           const Space& space,
+                           const std::string& arg_alloc_label,
+                           const size_t arg_alloc_size) {
+  return Impl::SharedAllocationRecord<Space>::allocate_tracked(
+      exec_space, space, arg_alloc_label, arg_alloc_size);
+}
+
+template <class Space = Kokkos::DefaultExecutionSpace::memory_space>
 inline void* kokkos_malloc(const std::string& arg_alloc_label,
                            const size_t arg_alloc_size) {
   using MemorySpace = typename Space::memory_space;
@@ -165,10 +174,26 @@ inline void* kokkos_malloc(const size_t arg_alloc_size) {
 }
 
 template <class Space = Kokkos::DefaultExecutionSpace::memory_space>
+inline void kokkos_free(const typename Space::execution_space& exec_space,
+                        void* arg_alloc) {
+  using MemorySpace = typename Space::memory_space;
+  return Impl::SharedAllocationRecord<MemorySpace>::deallocate_tracked(
+      exec_space, arg_alloc);
+}
+
+template <class Space = Kokkos::DefaultExecutionSpace::memory_space>
 inline void kokkos_free(void* arg_alloc) {
   using MemorySpace = typename Space::memory_space;
   return Impl::SharedAllocationRecord<MemorySpace>::deallocate_tracked(
       arg_alloc);
+}
+
+template <class Space = Kokkos::DefaultExecutionSpace::memory_space>
+inline void* kokkos_realloc(const typename Space::execution_space& exec_space,
+                            void* arg_alloc, const size_t arg_alloc_size) {
+  using MemorySpace = typename Space::memory_space;
+  return Impl::SharedAllocationRecord<MemorySpace>::reallocate_tracked(
+      exec_space, arg_alloc, arg_alloc_size);
 }
 
 template <class Space = Kokkos::DefaultExecutionSpace::memory_space>

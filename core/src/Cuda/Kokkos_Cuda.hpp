@@ -172,6 +172,10 @@ class Cuda {
   KOKKOS_DEPRECATED Cuda(cudaStream_t stream, bool manage_stream);
 
   //--------------------------------------------------------------------------
+  //! Free scratch memory. This will be done automatically at destruction, but
+  //! for multi-gpu we need to manually free earlier
+  void free_scratch();
+
   //! Free any resources being consumed by the device.
   static void impl_finalize();
 

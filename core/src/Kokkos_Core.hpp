@@ -150,6 +150,15 @@ namespace Kokkos {
  * leaked memory can be identified.
  */
 template <class Space = Kokkos::DefaultExecutionSpace::memory_space>
+inline void* kokkos_malloc(const typename Space::memory_space& space,
+                           const std::string& arg_alloc_label,
+                           const size_t arg_alloc_size) {
+  using MemorySpace = typename Space::memory_space;
+  return Impl::SharedAllocationRecord<MemorySpace>::allocate_tracked(
+      space, arg_alloc_label, arg_alloc_size);
+}
+
+template <class Space = Kokkos::DefaultExecutionSpace::memory_space>
 inline void* kokkos_malloc(const std::string& arg_alloc_label,
                            const size_t arg_alloc_size) {
   using MemorySpace = typename Space::memory_space;

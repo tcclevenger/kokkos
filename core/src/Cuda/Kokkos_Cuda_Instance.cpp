@@ -338,6 +338,7 @@ Cuda::size_type *CudaInternal::scratch_flags(const std::size_t size) const {
 
     std::size_t alloc_size =
         multiply_overflow_abort(m_scratchFlagsCount, sizeScratchGrain);
+
     m_scratchFlags = static_cast<size_type *>(
         mem_space.allocate("Kokkos::InternalScratchFlags", alloc_size));
 
@@ -355,7 +356,7 @@ Cuda::size_type *CudaInternal::scratch_space(const std::size_t size) const {
   if (verify_is_initialized("scratch_space") &&
       m_scratchSpaceCount < scratch_count(size)) {
     auto mem_space = Kokkos::CudaSpace::impl_create(m_cudaDev, m_stream);
-
+    
     if (m_scratchSpace) {
       mem_space.deallocate(m_scratchSpace,
                            m_scratchSpaceCount * sizeScratchGrain);
@@ -365,6 +366,7 @@ Cuda::size_type *CudaInternal::scratch_space(const std::size_t size) const {
 
     std::size_t alloc_size =
         multiply_overflow_abort(m_scratchSpaceCount, sizeScratchGrain);
+
     m_scratchSpace = static_cast<size_type *>(
         mem_space.allocate("Kokkos::InternalScratchSpace", alloc_size));
   }
@@ -387,6 +389,7 @@ Cuda::size_type *CudaInternal::scratch_unified(const std::size_t size) const {
 
     std::size_t alloc_size =
         multiply_overflow_abort(m_scratchUnifiedCount, sizeScratchGrain);
+
     m_scratchUnified = static_cast<size_type *>(
         mem_space.allocate("Kokkos::InternalScratchUnified", alloc_size));
   }
@@ -428,10 +431,12 @@ void *CudaInternal::resize_team_scratch_space(int scratch_pool_id,
   // Multiple ParallelFor/Reduce Teams can call this function at the same time
   // and invalidate the m_team_scratch_ptr. We use a pool to avoid any race
   // condition.
+  auto mem_space = Kokkos::CudaSpace::impl_create(m_cudaDev, m_stream);
   if (m_team_scratch_current_size[scratch_pool_id] == 0) {
     m_team_scratch_current_size[scratch_pool_id] = bytes;
     m_team_scratch_ptr[scratch_pool_id] =
         Kokkos::kokkos_malloc<Kokkos::CudaSpace>(
+						 mem_space,
             "Kokkos::CudaSpace::TeamScratchMemory",
             m_team_scratch_current_size[scratch_pool_id]);
   }

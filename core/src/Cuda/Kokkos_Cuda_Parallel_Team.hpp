@@ -524,7 +524,6 @@ class ParallelFor<FunctorType, Kokkos::TeamPolicy<Properties...>,
       grid = dim3(1, 1, 1);
     }
 #endif
-
     CudaParallelLaunch<ParallelFor, LaunchBounds>(
         *this, grid, block, shmem_size_total,
         m_policy.space()
@@ -539,6 +538,7 @@ class ParallelFor<FunctorType, Kokkos::TeamPolicy<Properties...>,
         m_vector_size(arg_policy.impl_vector_length()) {
     auto internal_space_instance =
         m_policy.space().impl_internal_space_instance();
+
     cudaFuncAttributes attr =
         CudaParallelLaunch<ParallelFor, LaunchBounds>::get_cuda_func_attributes(
             internal_space_instance->m_cudaDev);

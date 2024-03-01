@@ -138,7 +138,8 @@ inline void parallel_for(const std::string& str, const ExecPolicy& policy,
   Kokkos::Tools::Impl::begin_parallel_for(inner_policy, functor, str, kpID);
 
   Kokkos::Impl::shared_allocation_tracking_disable();
-  Impl::ParallelFor<FunctorType, ExecPolicy> closure(functor, inner_policy);
+Impl::ParallelFor<FunctorType, ExecPolicy> closure(functor, inner_policy);
+
   Kokkos::Impl::shared_allocation_tracking_enable();
 
   closure.execute();

@@ -171,6 +171,13 @@ class Cuda {
 
   KOKKOS_DEPRECATED Cuda(cudaStream_t stream, bool manage_stream);
 
+  ~Cuda() {
+    // In case of multi-gpu, we must free scratch before the
+    // internal space is deleted so that we can pass a valid execution
+    // space to kokkos_free().
+    free_scratch();
+  }
+
   //--------------------------------------------------------------------------
   //! Free scratch memory. This will be done automatically at destruction, but
   //! for multi-gpu we need to manually free earlier

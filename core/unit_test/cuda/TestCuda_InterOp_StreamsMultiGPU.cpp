@@ -261,12 +261,6 @@ void test_scratch(TEST_EXECSPACE exec0, TEST_EXECSPACE exec1) {
   Kokkos::deep_copy(error1, f1.error_count);
   ASSERT_EQ(error0, 0);
   ASSERT_EQ(error1, 0);
-
-  // Free scratch space manually (necessary for non-default device to free on
-  // the correct device)
-  Kokkos::fence();
-  exec0.free_scratch();
-  exec1.free_scratch();
 }
 
 TEST(cuda_multi_gpu, scratch_space) {

@@ -140,7 +140,7 @@ struct TestViewCudaAccessible {
       m_v0(Kokkos::view_alloc("v0", execs[0]), N),
       m_v1(Kokkos::view_alloc("v1", execs[1]), N) {}
 
-  static void run() {
+  void run() {
     Kokkos::parallel_for(
         Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
         *this);

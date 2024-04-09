@@ -159,8 +159,11 @@ TEST(cuda_multi_gpu, diff_mem_space) {
     std::array<TEST_EXECSPACE, 2> execs =
         get_execution_spaces(streams_and_devices);
 
-    TestViewCudaAccessible<Kokkos::CudaUVMSpace> test(execs);
-    test.run();
+    TestViewCudaAccessible<Kokkos::CudaUVMSpace> test_uvm(execs);
+    test_uvm.run();
+
+    TestViewCudaAccessible<Kokkos::CudaHostPinnedSpace> test_hp(execs);
+    test_hp.run();
   }
 }
 }  // namespace

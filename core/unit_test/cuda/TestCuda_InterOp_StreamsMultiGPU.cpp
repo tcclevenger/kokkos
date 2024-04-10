@@ -192,7 +192,7 @@ struct TestViewCudaAccessible {
   //                           err1);
   //   EXPECT_EQ(err0, 0);
   //   EXPECT_EQ(err1, 0);
-  // }
+  }
 };
 
 TEST(cuda_multi_gpu, diff_mem_space) {

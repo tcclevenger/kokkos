@@ -120,13 +120,19 @@ struct TestViewCudaAccessible {
   V m_v0;
   V m_v1;
 
-  struct TagInit {};
+  struct TagInit0 {};
+  struct TagInit1 {};
   struct TagTest0 {};
   struct TagTest1 {};
 
   KOKKOS_INLINE_FUNCTION
-  void operator()(const TagInit &, const int i) const {
-    m_v(i) = i + 1;
+  void operator()(const TagInit0 &, const int i) const {
+    m_v0(i) = i + 1;
+  }
+
+  KOKKOS_INLINE_FUNCTION
+  void operator()(const TagInit1 &, const int i) const {
+    m_v1(i) = i + 1;
   }
 
   KOKKOS_INLINE_FUNCTION
@@ -146,7 +152,10 @@ struct TestViewCudaAccessible {
 
   void run() {
     Kokkos::parallel_for(
-        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
+        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit0>(execs[0], 0, N),
+        *this);
+    Kokkos::parallel_for(
+        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit1>(execs[1], 0, N),
         *this);
     Kokkos::fence();
 

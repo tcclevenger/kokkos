@@ -106,6 +106,73 @@ std::array<TEST_EXECSPACE, 2> get_execution_spaces(
 //   }
 // }
 
+struct TestCudaSpace {
+  enum { N = 1000 };
+  using MemSpace = Kokkos::CudaSpace;
+
+  std::array<TEST_EXECSPACE, 2> execs;
+  using V = Kokkos::View<int*, MemSpace>;
+
+  V m_v0;
+  V m_v1;
+
+  struct TagInit0 {};
+  struct TagInit1 {};
+  struct TagTest0 {};
+  struct TagTest1 {};
+
+  KOKKOS_INLINE_FUNCTION
+  void operator()(const TagInit0 &, const int i) const {
+    m_v0(i) = i + 1;
+  }
+
+  KOKKOS_INLINE_FUNCTION
+  void operator()(const TagInit1 &, const int i) const {
+    m_v1(i) = i + 1;
+  }
+
+  KOKKOS_INLINE_FUNCTION
+  void operator()(const TagTest0 &, const int i, int &error_count) const {
+    if (m_v0(i) != i + 1) ++error_count;
+  }
+
+  KOKKOS_INLINE_FUNCTION
+  void operator()(const TagTest1 &, const int i, int &error_count) const {
+    if (m_v1(i) != i + 1) ++error_count;
+  }
+
+  TestCudaSpace(std::array<TEST_EXECSPACE, 2>& execs_) :
+      execs(execs_) {}
+
+  void run() {
+    // Create memory spaces using device and stream
+    std::array<MemSpace, 2> mem_spaces = {
+      MemSpace::impl_create(execs[0].cuda_device(), execs[0].cuda_stream()),
+      MemSpace::impl_create(execs[1].cuda_device(), execs[1].cuda_stream())
+    };
+    m_v0 = V(Kokkos::view_alloc("v0", mem_spaces[0]), N);
+    m_v1 = V(Kokkos::view_alloc("v1", mem_spaces[1]), N);
+
+    // Initialize each view (on correct device)
+    Kokkos::parallel_for(
+        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit0>(execs[0], 0, N),
+        *this);
+    Kokkos::parallel_for(
+        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit1>(execs[1], 0, N),
+        *this);
+    Kokkos::fence();
+
+    // Each execusion space should have read access to only their views
+    int err0, err1;
+    Kokkos::parallel_reduce(Kokkos::RangePolicy<TEST_EXECSPACE, TagTest0>(execs[0], 0, N), *this,
+                            err0);
+    Kokkos::parallel_reduce(Kokkos::RangePolicy<TEST_EXECSPACE, TagTest1>(execs[1], 0, N), *this,
+                            err1);
+    EXPECT_EQ(err0, 0);
+    EXPECT_EQ(err1, 0);
+  }
+};
+
 struct TestCudaHostPinnedSpace {
   enum { N = 1000 };
   using MemSpace = Kokkos::CudaHostPinnedSpace;
@@ -243,8 +310,8 @@ TEST(cuda_multi_gpu, cuda_spaces) {
         get_execution_spaces(streams_and_devices);
 
 {
-    // TestCudaSpace test(execs);
-    // test.run();
+    TestCudaSpace test(execs);
+    test.run();
 }
 {
     TestCudaHostPinnedSpace test(execs);

@@ -161,7 +161,7 @@ struct TestViewCudaAccessible {
     m_v1 = V(Kokkos::view_alloc("v1", mem_spaces[1]), N);
 
 
-    printf("NAME: %s", MemSpace().name());
+    printf("NAME: %s\n", MemSpace().name());
 
     // if (MemSpace().name() == "CudaHostPinned") {
     //   Kokkos::parallel_for(

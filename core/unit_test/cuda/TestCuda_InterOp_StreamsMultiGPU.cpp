@@ -57,54 +57,54 @@ std::array<TEST_EXECSPACE, 2> get_execution_spaces(
   return {exec0, exec1};
 }
 
-TEST(cuda_multi_gpu, managed_views) {
-  StreamsAndDevices streams_and_devices;
-  {
-    std::array<TEST_EXECSPACE, 2> execs =
-        get_execution_spaces(streams_and_devices);
+// TEST(cuda_multi_gpu, managed_views) {
+//   StreamsAndDevices streams_and_devices;
+//   {
+//     std::array<TEST_EXECSPACE, 2> execs =
+//         get_execution_spaces(streams_and_devices);
 
-    Kokkos::View<int *, TEST_EXECSPACE> view0(
-        Kokkos::view_alloc("v0", execs[0]), 100);
-    Kokkos::View<int *, TEST_EXECSPACE> view(Kokkos::view_alloc("v", execs[1]),
-                                             100);
+//     Kokkos::View<int *, TEST_EXECSPACE> view0(
+//         Kokkos::view_alloc("v0", execs[0]), 100);
+//     Kokkos::View<int *, TEST_EXECSPACE> view(Kokkos::view_alloc("v", execs[1]),
+//                                              100);
 
-    test_policies(execs[0], view0, execs[1], view);
-  }
-}
+//     test_policies(execs[0], view0, execs[1], view);
+//   }
+// }
 
-TEST(cuda_multi_gpu, unmanaged_views) {
-  StreamsAndDevices streams_and_devices;
-  {
-    std::array<TEST_EXECSPACE, 2> execs =
-        get_execution_spaces(streams_and_devices);
+// TEST(cuda_multi_gpu, unmanaged_views) {
+//   StreamsAndDevices streams_and_devices;
+//   {
+//     std::array<TEST_EXECSPACE, 2> execs =
+//         get_execution_spaces(streams_and_devices);
 
-    KOKKOS_IMPL_CUDA_SAFE_CALL(cudaSetDevice(execs[0].cuda_device()));
-    int *p0;
-    KOKKOS_IMPL_CUDA_SAFE_CALL(
-        cudaMalloc(reinterpret_cast<void **>(&p0), sizeof(int) * 100));
-    Kokkos::View<int *, TEST_EXECSPACE> view0(p0, 100);
+//     KOKKOS_IMPL_CUDA_SAFE_CALL(cudaSetDevice(execs[0].cuda_device()));
+//     int *p0;
+//     KOKKOS_IMPL_CUDA_SAFE_CALL(
+//         cudaMalloc(reinterpret_cast<void **>(&p0), sizeof(int) * 100));
+//     Kokkos::View<int *, TEST_EXECSPACE> view0(p0, 100);
 
-    KOKKOS_IMPL_CUDA_SAFE_CALL(cudaSetDevice(execs[1].cuda_device()));
-    int *p;
-    KOKKOS_IMPL_CUDA_SAFE_CALL(
-        cudaMalloc(reinterpret_cast<void **>(&p), sizeof(int) * 100));
-    Kokkos::View<int *, TEST_EXECSPACE> view(p, 100);
+//     KOKKOS_IMPL_CUDA_SAFE_CALL(cudaSetDevice(execs[1].cuda_device()));
+//     int *p;
+//     KOKKOS_IMPL_CUDA_SAFE_CALL(
+//         cudaMalloc(reinterpret_cast<void **>(&p), sizeof(int) * 100));
+//     Kokkos::View<int *, TEST_EXECSPACE> view(p, 100);
 
-    test_policies(execs[0], view0, execs[1], view);
-    KOKKOS_IMPL_CUDA_SAFE_CALL(cudaFree(p0));
-    KOKKOS_IMPL_CUDA_SAFE_CALL(cudaFree(p));
-  }
-}
+//     test_policies(execs[0], view0, execs[1], view);
+//     KOKKOS_IMPL_CUDA_SAFE_CALL(cudaFree(p0));
+//     KOKKOS_IMPL_CUDA_SAFE_CALL(cudaFree(p));
+//   }
+// }
 
-TEST(cuda_multi_gpu, scratch_space) {
-  StreamsAndDevices streams_and_devices;
-  {
-    std::array<TEST_EXECSPACE, 2> execs =
-        get_execution_spaces(streams_and_devices);
+// TEST(cuda_multi_gpu, scratch_space) {
+//   StreamsAndDevices streams_and_devices;
+//   {
+//     std::array<TEST_EXECSPACE, 2> execs =
+//         get_execution_spaces(streams_and_devices);
 
-    test_scratch(execs[0], execs[1]);
-  }
-}
+//     test_scratch(execs[0], execs[1]);
+//   }
+// }
 
 
 

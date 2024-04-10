@@ -301,6 +301,8 @@ void *CudaHostPinnedSpace::impl_allocate(
     const Kokkos::Tools::SpaceHandle arg_handle) const {
   void *ptr = nullptr;
 
+  printf("HP::impl_allocate: %d\n", m_device);
+
   KOKKOS_IMPL_CUDA_SAFE_CALL(cudaSetDevice(m_device));
   cudaError_t error_code =
       cudaHostAlloc(&ptr, arg_alloc_size, cudaHostAllocDefault);

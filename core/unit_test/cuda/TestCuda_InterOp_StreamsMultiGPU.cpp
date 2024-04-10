@@ -160,6 +160,8 @@ struct TestViewCudaAccessible {
     m_v0 = V(Kokkos::view_alloc("v0", mem_spaces[0]), N);
     m_v1 = V(Kokkos::view_alloc("v1", mem_spaces[1]), N);
 
+    std::cout << "NAME: " << MemSpace().name() << std::endl;
+
     if (std::strcmp(MemSpace().name(), "CudaHostPinned") != 0) {
       Kokkos::parallel_for(
           Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),

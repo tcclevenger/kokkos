@@ -218,10 +218,10 @@ struct TestCudaUVMSpace {
         Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
         *this);
     Kokkos::parallel_for(
-        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(execs[0], 0, N),
+        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit0>(execs[0], 0, N),
         *this);
     Kokkos::parallel_for(
-        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(execs[1], 0, N),
+        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit1>(execs[1], 0, N),
         *this);
     Kokkos::fence();
 
@@ -250,20 +250,11 @@ TEST(cuda_multi_gpu, cuda_spaces) {
     TestCudaHostPinnedSpace test(execs);
     test.run();
 }
-// {
-//     TestCudaUVMSpace test(execs);
-//     test.run();
-// }
+{
+    TestCudaUVMSpace test(execs);
+    test.run();
+}
   }
 }
 
-TEST(cuda_multi_gpu, cuda_uvm_space) {
-  StreamsAndDevices streams_and_devices;
-  {
-    std::array<TEST_EXECSPACE, 2> execs =
-        get_execution_spaces(streams_and_devices);
-
-
-  }
-}
 }  // namespace

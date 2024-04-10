@@ -254,6 +254,8 @@ void *CudaUVMSpace::impl_allocate(
   if (arg_alloc_size > 0) {
     Kokkos::Impl::num_uvm_allocations++;
 
+    printf("UVM::impl_allocate: %d\n", m_device);
+
     KOKKOS_IMPL_CUDA_SAFE_CALL(cudaSetDevice(m_device));
     cudaError_t error_code =
         cudaMallocManaged(&ptr, arg_alloc_size, cudaMemAttachGlobal);

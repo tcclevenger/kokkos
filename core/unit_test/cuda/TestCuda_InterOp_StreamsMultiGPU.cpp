@@ -122,6 +122,8 @@ struct TestViewCudaAccessible {
   V m_v1;
 
   struct TagInit {};
+  struct TagInit0{};
+  struct TagInit1{};
   struct TagTest {};
 
   KOKKOS_INLINE_FUNCTION
@@ -130,8 +132,20 @@ struct TestViewCudaAccessible {
   }
 
   KOKKOS_INLINE_FUNCTION
+  void operator()(const TagInit0 &, const int i) const {
+    m_v0(i) = i + 1;
+  }
+
+    KOKKOS_INLINE_FUNCTION
+  void operator()(const TagInit1 &, const int i) const {
+    m_v1(i) = i + 1;
+  }
+
+  KOKKOS_INLINE_FUNCTION
   void operator()(const TagTest &, const int i, int &error_count) const {
-    if (m_v(i) != i + 1) ++error_count;
+    if (m_v(i)  != i + 1) ++error_count;
+    if (m_v0(i) != i + 1) ++error_count;
+    if (m_v1(i) != i + 1) ++error_count;
   }
 
   TestViewCudaAccessible(std::array<TEST_EXECSPACE, 2>& execs_) :
@@ -146,12 +160,29 @@ struct TestViewCudaAccessible {
     m_v0 = V(Kokkos::view_alloc("v0", mem_spaces[0]), N);
     m_v1 = V(Kokkos::view_alloc("v1", mem_spaces[1]), N);
 
-    Kokkos::parallel_for(
-        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
-        *this);
+    if (MemSpace().name() == "CudaHostPinned") {
+      Kokkos::parallel_for(
+          Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
+          *this);
+      Kokkos::parallel_for(
+          Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit0>(0, N),
+          *this);
+      Kokkos::parallel_for(
+          Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit1>(0, N),
+          *this);
+    } else {
+      Kokkos::parallel_for(
+          Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
+          *this);
+      Kokkos::parallel_for(
+          Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit0>(execs[0], 0, N),
+          *this);
+      Kokkos::parallel_for(
+          Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit1>(execs[1], 0, N),
+          *this);
+    }
     Kokkos::fence();
 
-    // Next access is a different execution space, must complete prior kernel.
     int err0, err1;
     Kokkos::parallel_reduce(Kokkos::RangePolicy<TEST_EXECSPACE, TagTest>(execs[0], 0, N), *this,
                             err0);
@@ -168,8 +199,8 @@ TEST(cuda_multi_gpu, diff_mem_space) {
     std::array<TEST_EXECSPACE, 2> execs =
         get_execution_spaces(streams_and_devices);
 
-    // TestViewCudaAccessible<Kokkos::CudaUVMSpace> test_uvm(execs);
-    // test_uvm.run();
+    TestViewCudaAccessible<Kokkos::CudaUVMSpace> test_uvm(execs);
+    test_uvm.run();
 
     TestViewCudaAccessible<Kokkos::CudaHostPinnedSpace> test_hp(execs);
     test_hp.run();

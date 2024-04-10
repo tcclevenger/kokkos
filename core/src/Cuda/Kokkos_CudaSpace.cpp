@@ -142,9 +142,9 @@ CudaSpace::CudaSpace(int device_id, cudaStream_t stream)
 
 CudaUVMSpace::CudaUVMSpace()
     : m_device(Kokkos::Cuda().cuda_device()),
-      m_stream(Kokkos::Cuda().cuda_stream()) {}
+      m_stream(Kokkos::Cuda().cuda_stream()) { printf("Construct1\n"); }
 CudaUVMSpace::CudaUVMSpace(int device_id, cudaStream_t stream)
-    : m_device(device_id), m_stream(stream) {}
+    : m_device(device_id), m_stream(stream) { printf("Construct2\n"); }
 
 CudaHostPinnedSpace::CudaHostPinnedSpace()
     : m_device(Kokkos::Cuda().cuda_device()),

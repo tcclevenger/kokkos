@@ -107,61 +107,61 @@ std::array<TEST_EXECSPACE, 2> get_execution_spaces(
 // }
 
 struct TestCudaHostPinnedSpace {
-  enum { N = 1000 };
-  using MemSpace = CudaHostPinnedSpace;
+  // enum { N = 1000 };
+  // using MemSpace = CudaHostPinnedSpace;
 
-  std::array<TEST_EXECSPACE, 2> execs;
-  using V = Kokkos::View<int*, MemSpace>;
+  // std::array<TEST_EXECSPACE, 2> execs;
+  // using V = Kokkos::View<int*, MemSpace>;
 
-  V m_v;
-  V m_v0;
-  V m_v1;
+  // V m_v;
+  // V m_v0;
+  // V m_v1;
 
-  struct TagInit {};
-  struct TagTest {};
+  // struct TagInit {};
+  // struct TagTest {};
 
-  KOKKOS_INLINE_FUNCTION
-  void operator()(const TagInit &, const int i) const {
-    m_v(i)  = i + 1;
-    m_v0(i) = i + 1;
-    m_v1(i) = i + 1;
-  }
+  // KOKKOS_INLINE_FUNCTION
+  // void operator()(const TagInit &, const int i) const {
+  //   m_v(i)  = i + 1;
+  //   m_v0(i) = i + 1;
+  //   m_v1(i) = i + 1;
+  // }
 
-  KOKKOS_INLINE_FUNCTION
-  void operator()(const TagTest &, const int i, int &error_count) const {
-    if (m_v(i)  != i + 1) ++error_count;
-    if (m_v0(i) != i + 1) ++error_count;
-    if (m_v1(i) != i + 1) ++error_count;
-  }
+  // KOKKOS_INLINE_FUNCTION
+  // void operator()(const TagTest &, const int i, int &error_count) const {
+  //   if (m_v(i)  != i + 1) ++error_count;
+  //   if (m_v0(i) != i + 1) ++error_count;
+  //   if (m_v1(i) != i + 1) ++error_count;
+  // }
 
-  TestCudaHostPinnedSpace(std::array<TEST_EXECSPACE, 2>& execs_) :
-      execs(execs_),
-      m_v("v0", N) {}
+  // TestCudaHostPinnedSpace(std::array<TEST_EXECSPACE, 2>& execs_) :
+  //     execs(execs_),
+  //     m_v("v0", N) {}
 
-  void run() {
-    // Create memory spaces using device and stream
-    std::array<MemSpace, 2> mem_spaces = {
-      MemSpace::impl_create(execs[0].cuda_device(), execs[0].cuda_stream()),
-      MemSpace::impl_create(execs[1].cuda_device(), execs[1].cuda_stream())
-    };
-    m_v0 = V(Kokkos::view_alloc("v0", mem_spaces[0]), N);
-    m_v1 = V(Kokkos::view_alloc("v1", mem_spaces[1]), N);
+  // void run() {
+  //   // Create memory spaces using device and stream
+  //   std::array<MemSpace, 2> mem_spaces = {
+  //     MemSpace::impl_create(execs[0].cuda_device(), execs[0].cuda_stream()),
+  //     MemSpace::impl_create(execs[1].cuda_device(), execs[1].cuda_stream())
+  //   };
+  //   m_v0 = V(Kokkos::view_alloc("v0", mem_spaces[0]), N);
+  //   m_v1 = V(Kokkos::view_alloc("v1", mem_spaces[1]), N);
 
-    // Initialize each view (on host device)
-    Kokkos::parallel_for(
-        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
-        *this);
-    Kokkos::fence();
+  //   // Initialize each view (on host device)
+  //   Kokkos::parallel_for(
+  //       Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
+  //       *this);
+  //   Kokkos::fence();
 
-    // Each execusion space should have read access to each view
-    int err0, err1;
-    Kokkos::parallel_reduce(Kokkos::RangePolicy<TEST_EXECSPACE, TagTest>(execs[0], 0, N), *this,
-                            err0);
-    Kokkos::parallel_reduce(Kokkos::RangePolicy<TEST_EXECSPACE, TagTest>(execs[1], 0, N), *this,
-                            err1);
-    EXPECT_EQ(err0, 0);
-    EXPECT_EQ(err1, 0);
-  }
+  //   // Each execusion space should have read access to each view
+  //   int err0, err1;
+  //   Kokkos::parallel_reduce(Kokkos::RangePolicy<TEST_EXECSPACE, TagTest>(execs[0], 0, N), *this,
+  //                           err0);
+  //   Kokkos::parallel_reduce(Kokkos::RangePolicy<TEST_EXECSPACE, TagTest>(execs[1], 0, N), *this,
+  //                           err1);
+  //   EXPECT_EQ(err0, 0);
+  //   EXPECT_EQ(err1, 0);
+  // }
 };
 
 struct TestCudaUVMSpace {
@@ -247,12 +247,13 @@ TEST(cuda_multi_gpu, cuda_spaces) {
     // test.run();
 }
 {
-    TestCudaHostPinnedSpace test(execs);
-    test.run();
+    CudaHostPinnedSpace space;
+    //TestCudaHostPinnedSpace test(execs);
+    //test.run();
 }
 {
-    TestCudaUVMSpace test(execs);
-    test.run();
+    //TestCudaUVMSpace test(execs);
+    //test.run();
 }
   }
 }

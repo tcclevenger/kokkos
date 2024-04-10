@@ -134,7 +134,7 @@ struct TestViewCudaAccessible {
 
   TestViewCudaAccessible(std::array<TEST_EXECSPACE, 2>& execs_) :
       execs(execs_),
-      m_v("v0", N) {}
+      m_v(Kokkos::view_alloc("v0", execs[1]), N) {}
 
   void run() {
     Kokkos::parallel_for(

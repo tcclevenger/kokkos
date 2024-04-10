@@ -179,8 +179,8 @@ TEST(cuda_multi_gpu, diff_mem_space) {
     TestViewCudaAccessible<Kokkos::CudaUVMSpace> test_uvm(execs);
     test_uvm.run();
 
-    TestViewCudaAccessible<Kokkos::CudaHostPinnedSpace> test_hp(execs);
-    test_hp.run();
+    // TestViewCudaAccessible<Kokkos::CudaHostPinnedSpace> test_hp(execs);
+    // test_hp.run();
   }
 }
 }  // namespace

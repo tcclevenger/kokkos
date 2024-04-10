@@ -118,8 +118,6 @@ struct TestViewCudaAccessible {
   using V = Kokkos::View<int*, MemSpace>;
 
   V m_v;
-  V m_v0;
-  V m_v1;
 
   struct TagInit {};
   struct TagTest {};
@@ -136,19 +134,9 @@ struct TestViewCudaAccessible {
 
   TestViewCudaAccessible(std::array<TEST_EXECSPACE, 2>& execs_) :
       execs(execs_),
-      m_v(Kokkos::view_alloc("v0",execs[1]), N) {}
+      m_v("v0", N) {}
 
   void run() {
-    // Create memory spaces from each instances
-    std::array<MemSpace, 2> mem_spaces = {
-      MemSpace(execs[0].cuda_device(), execs[0].cuda_stream()),
-      MemSpace(execs[1].cuda_device(), execs[1].cuda_stream())
-    };
-
-    // Allocate views
-    m_v0 = V(Kokkos::view_alloc("v0", mem_spaces[0]), N);
-    m_v1 = V(Kokkos::view_alloc("v1", mem_spaces[1]), N);
-
     Kokkos::parallel_for(
         Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
         *this);

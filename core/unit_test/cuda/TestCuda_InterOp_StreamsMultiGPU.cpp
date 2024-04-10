@@ -106,7 +106,7 @@ std::array<TEST_EXECSPACE, 2> get_execution_spaces(
 //   }
 // }
 
-struct TestHostPinned {
+struct TestCudaHostPinnedSpace {
   enum { N = 1000 };
   using MemSpace = CudaHostPinnedSpace;
 
@@ -134,7 +134,7 @@ struct TestHostPinned {
     if (m_v1(i) != i + 1) ++error_count;
   }
 
-  TestHostPinned(std::array<TEST_EXECSPACE, 2>& execs_) :
+  TestCudaHostPinnedSpace(std::array<TEST_EXECSPACE, 2>& execs_) :
       execs(execs_),
       m_v("v0", N) {}
 
@@ -164,7 +164,7 @@ struct TestHostPinned {
   }
 };
 
-struct TestUVM {
+struct TestCudaUVMSpace {
   enum { N = 1000 };
   using MemSpace = CudaUVMSpace;
 
@@ -200,7 +200,7 @@ struct TestUVM {
     if (m_v1(i) != i + 1) ++error_count;
   }
 
-  TestUVM(std::array<TEST_EXECSPACE, 2>& execs_) :
+  TestCudaUVMSpace(std::array<TEST_EXECSPACE, 2>& execs_) :
       execs(execs_),
       m_v("v0", N) {}
 

@@ -132,7 +132,7 @@ struct TestViewCudaAccessible {
     if (m_v(i) != i + 1) ++error_count;
   }
 
-  TestViewCudaAccessible(std::array<TEST_EXECSPACE, 2> execs_) :
+  TestViewCudaAccessible(std::array<TEST_EXECSPACE, 2>& execs_) :
       execs(execs_),
       m_v("v0", N) {}
 

@@ -1356,7 +1356,7 @@ contiguous_fill_or_memset(
     const ExecutionSpace& exec_space, const View<DT, DP...>& dst,
     typename ViewTraits<DT, DP...>::const_value_type& value) {
   // With OpenMP, using memset has significant performance issues.
-  if (Impl::is_zero_byte(value)
+  if (Impl::is_zero_byte(value) {
 #ifdef KOKKOS_ENABLE_OPENMP
       && !std::is_same_v<ExecutionSpace, Kokkos::OpenMP>
 #endif
@@ -1367,6 +1367,7 @@ contiguous_fill_or_memset(
     // See https://github.com/kokkos/kokkos/issues/6775
     printf("ZERMEMSET1\n");
     ZeroMemset<ExecutionSpace, View<DT, DP...>>(exec_space, dst);
+    }
   else
     contiguous_fill(exec_space, dst, value);
 }
@@ -1397,13 +1398,14 @@ contiguous_fill_or_memset(
 // On A64FX memset seems to do the wrong thing with regards to first touch
 // leading to the significant performance issues
 #ifndef KOKKOS_ARCH_A64FX
-  if (Impl::is_zero_byte(value))
+  if (Impl::is_zero_byte(value)){
     // FIXME intel/19 icpc fails to deduce template parameters here,
     // resulting in compilation errors; explicitly passing the template
     // parameters to ZeroMemset helps workaround the issue
     // See https://github.com/kokkos/kokkos/issues/6775
     printf("ZERMEMSET2\n");
     ZeroMemset<exec_space_type, ViewType>(exec, dst);
+    }
   else
 #endif
     contiguous_fill(exec, dst, value);

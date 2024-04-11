@@ -151,7 +151,12 @@ struct TestCudaSpace {
       MemSpace::impl_create(execs[1].cuda_device(), execs[1].cuda_stream())
     };
     m_v0 = V(Kokkos::view_alloc("v0", mem_spaces[0]), N);
+
+   printf("BREAK1\n");
+   auto tmp1 = V(Kokkos::view_alloc("v1", execs[1]), N);
+   printf("BREAK2\n");
     m_v1 = V(Kokkos::view_alloc("v1", mem_spaces[1]), N);
+    printf("BREAK3\n");
 
     // Initialize each view (on correct device)
     Kokkos::parallel_for(

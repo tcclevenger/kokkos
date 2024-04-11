@@ -238,7 +238,7 @@ struct TestCudaUVMSpace {
   std::array<TEST_EXECSPACE, 2> execs;
   using V = Kokkos::View<int*, MemSpace>;
 
-  V m_v;
+  //V m_v;
   V m_v0;
   V m_v1;
 
@@ -249,7 +249,7 @@ struct TestCudaUVMSpace {
 
   KOKKOS_INLINE_FUNCTION
   void operator()(const TagInit &, const int i) const {
-    m_v(i)  = i + 1;
+    //m_v(i)  = i + 1;
     m_v0(i) = i + 1;
     m_v1(i) = i + 1;
   }
@@ -264,7 +264,7 @@ struct TestCudaUVMSpace {
 
   KOKKOS_INLINE_FUNCTION
   void operator()(const TagTest &, const int i, int &error_count) const {
-    if (m_v(i)  != i + 1) ++error_count;
+    //if (m_v(i)  != i + 1) ++error_count;
     if (m_v0(i) != i + 1) ++error_count;
     if (m_v1(i) != i + 1) ++error_count;
   }

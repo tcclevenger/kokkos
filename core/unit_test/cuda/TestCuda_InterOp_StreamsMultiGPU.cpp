@@ -270,8 +270,9 @@ struct TestCudaUVMSpace {
   }
 
   TestCudaUVMSpace(std::array<TEST_EXECSPACE, 2>& execs_) :
-      execs(execs_),
-      m_v("v0", N) {}
+      execs(execs_)
+      //, m_v("v0", N)
+      {}
 
   void run() {
     // Create memory spaces using device and stream

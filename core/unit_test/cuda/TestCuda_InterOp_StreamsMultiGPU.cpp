@@ -309,10 +309,10 @@ TEST(cuda_multi_gpu, cuda_spaces) {
     std::array<TEST_EXECSPACE, 2> execs =
         get_execution_spaces(streams_and_devices);
 
-// {
-//     TestCudaSpace test(execs);
-//     test.run();
-// }
+{
+    TestCudaSpace test(execs);
+    test.run();
+}
 // {
 //     TestCudaHostPinnedSpace test(execs);
 //     test.run();

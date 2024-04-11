@@ -1365,6 +1365,7 @@ contiguous_fill_or_memset(
     // resulting in compilation errors; explicitly passing the template
     // parameters to ZeroMemset helps workaround the issue
     // See https://github.com/kokkos/kokkos/issues/6775
+    printf("ZERMEMSET1\n");
     ZeroMemset<ExecutionSpace, View<DT, DP...>>(exec_space, dst);
   else
     contiguous_fill(exec_space, dst, value);
@@ -1401,6 +1402,7 @@ contiguous_fill_or_memset(
     // resulting in compilation errors; explicitly passing the template
     // parameters to ZeroMemset helps workaround the issue
     // See https://github.com/kokkos/kokkos/issues/6775
+    printf("ZERMEMSET2\n");
     ZeroMemset<exec_space_type, ViewType>(exec, dst);
   else
 #endif

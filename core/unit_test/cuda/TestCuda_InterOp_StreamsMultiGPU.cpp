@@ -238,7 +238,7 @@ struct TestCudaUVMSpace {
   std::array<TEST_EXECSPACE, 2> execs;
   using V = Kokkos::View<int*, MemSpace>;
 
-  //V m_v;
+  V m_v;
   V m_v0;
   V m_v1;
 
@@ -249,9 +249,7 @@ struct TestCudaUVMSpace {
 
   KOKKOS_INLINE_FUNCTION
   void operator()(const TagInit &, const int i) const {
-    //m_v(i)  = i + 1;
-    m_v0(i) = i + 1;
-    m_v1(i) = i + 1;
+    m_v(i)  = i + 1;
   }
   KOKKOS_INLINE_FUNCTION
   void operator()(const TagInit0 &, const int i) const {
@@ -264,15 +262,14 @@ struct TestCudaUVMSpace {
 
   KOKKOS_INLINE_FUNCTION
   void operator()(const TagTest &, const int i, int &error_count) const {
-    //if (m_v(i)  != i + 1) ++error_count;
+    if (m_v(i)  != i + 1) ++error_count;
     if (m_v0(i) != i + 1) ++error_count;
     if (m_v1(i) != i + 1) ++error_count;
   }
 
   TestCudaUVMSpace(std::array<TEST_EXECSPACE, 2>& execs_) :
-      execs(execs_)
-      //, m_v("v0", N)
-      {}
+      execs(execs_),
+      m_v("v0", N) {}
 
   void run() {
     // Create memory spaces using device and stream
@@ -284,9 +281,9 @@ struct TestCudaUVMSpace {
     m_v1 = V(Kokkos::view_alloc("v1", mem_spaces[1]), N);
 
     // Initialize each view on their respective devices
-    // Kokkos::parallel_for(
-    //     Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
-    //     *this);
+    Kokkos::parallel_for(
+        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
+        *this);
     Kokkos::parallel_for(
         Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit0>(execs[0], 0, N),
         *this);

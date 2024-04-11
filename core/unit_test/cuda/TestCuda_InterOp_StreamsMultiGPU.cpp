@@ -284,9 +284,9 @@ struct TestCudaUVMSpace {
     m_v1 = V(Kokkos::view_alloc("v1", mem_spaces[1]), N);
 
     // Initialize each view on their respective devices
-    Kokkos::parallel_for(
-        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
-        *this);
+    // Kokkos::parallel_for(
+    //     Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
+    //     *this);
     Kokkos::parallel_for(
         Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit0>(execs[0], 0, N),
         *this);

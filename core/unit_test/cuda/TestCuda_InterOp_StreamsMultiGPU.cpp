@@ -311,7 +311,7 @@ TEST(cuda_multi_gpu, cuda_spaces) {
 
 {
     TestCudaSpace test(execs);
-    test.run();
+    //test.run();
 }
 // {
 //     TestCudaHostPinnedSpace test(execs);

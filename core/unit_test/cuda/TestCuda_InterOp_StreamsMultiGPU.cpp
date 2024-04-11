@@ -151,6 +151,7 @@ struct TestCudaSpace {
       MemSpace::impl_create(execs[1].cuda_device(), execs[1].cuda_stream())
     };
     m_v0 = V(Kokkos::view_alloc("v0", mem_spaces[0]), N);
+    std::cout << execs[1].cuda_device() << std::endl;
     m_v1 = V(Kokkos::view_alloc("v1", mem_spaces[1]), N);
 
     // Initialize each view (on correct device)

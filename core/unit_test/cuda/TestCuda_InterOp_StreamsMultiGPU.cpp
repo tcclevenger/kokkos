@@ -250,6 +250,8 @@ struct TestCudaUVMSpace {
   KOKKOS_INLINE_FUNCTION
   void operator()(const TagInit &, const int i) const {
     m_v(i)  = i + 1;
+    m_v0(i) = i + 1;
+    m_v1(i) = i + 1;
   }
   KOKKOS_INLINE_FUNCTION
   void operator()(const TagInit0 &, const int i) const {

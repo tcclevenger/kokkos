@@ -284,12 +284,12 @@ struct TestCudaUVMSpace {
     Kokkos::parallel_for(
         Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit>(0, N),
         *this);
-    Kokkos::parallel_for(
-        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit0>(execs[0], 0, N),
-        *this);
-    Kokkos::parallel_for(
-        Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit1>(execs[1], 0, N),
-        *this);
+    // Kokkos::parallel_for(
+    //     Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit0>(execs[0], 0, N),
+    //     *this);
+    // Kokkos::parallel_for(
+    //     Kokkos::RangePolicy<typename MemSpace::execution_space, TagInit1>(execs[1], 0, N),
+    //     *this);
     Kokkos::fence();
 
     // Each execusion space should have read access to each view

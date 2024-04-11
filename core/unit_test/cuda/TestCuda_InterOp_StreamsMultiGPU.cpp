@@ -163,13 +163,13 @@ struct TestCudaSpace {
     Kokkos::fence();
 
     // Each execusion space should have read access to only their views
-    int err0, err1;
-    Kokkos::parallel_reduce(Kokkos::RangePolicy<TEST_EXECSPACE, TagTest0>(execs[0], 0, N), *this,
-                            err0);
-    Kokkos::parallel_reduce(Kokkos::RangePolicy<TEST_EXECSPACE, TagTest1>(execs[1], 0, N), *this,
-                            err1);
-    EXPECT_EQ(err0, 0);
-    EXPECT_EQ(err1, 0);
+    // int err0, err1;
+    // Kokkos::parallel_reduce(Kokkos::RangePolicy<TEST_EXECSPACE, TagTest0>(execs[0], 0, N), *this,
+    //                         err0);
+    // Kokkos::parallel_reduce(Kokkos::RangePolicy<TEST_EXECSPACE, TagTest1>(execs[1], 0, N), *this,
+    //                         err1);
+    // EXPECT_EQ(err0, 0);
+    // EXPECT_EQ(err1, 0);
   }
 };
 

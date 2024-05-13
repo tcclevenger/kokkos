@@ -2682,6 +2682,7 @@ struct ViewValueFunctor<DeviceType, ValueType, true /* is_scalar */> {
   }
 
   void parallel_for_implementation() {
+    printf("FOUND A TEST\n");
     PolicyType policy(0, n);
     uint64_t kpID = 0;
     if (Kokkos::Profiling::profileLibraryLoaded()) {

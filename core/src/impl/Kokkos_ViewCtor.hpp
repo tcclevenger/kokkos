@@ -237,7 +237,7 @@ struct ViewCtorProp : public ViewCtorProp<void, P>... {
 #if !defined(KOKKOS_COMPILER_MSVC) || !defined(KOKKOS_COMPILER_NVCC)
 template <typename... P>
 auto with_properties_if_unset(const ViewCtorProp<P...> &view_ctor_prop) {
-  std::cout << "with_properties_if_unset 4" << std::endl;
+  printf("with_properties_if_unset 4\n");
   return view_ctor_prop;
 }
 
@@ -257,10 +257,10 @@ auto with_properties_if_unset(const ViewCtorProp<P...> &view_ctor_prop,
     NewViewCtorProp new_view_ctor_prop(view_ctor_prop);
     static_cast<ViewCtorProp<void, Property> &>(new_view_ctor_prop).value =
         property;
-    std::cout << "with_properties_if_unset 3" << std::endl;
+    printf("with_properties_if_unset 3\n");
     return with_properties_if_unset(new_view_ctor_prop, properties...);
   } else
-    std::cout << "with_properties_if_unset 2" << std::endl;
+    printf("with_properties_if_unset 2\n");
     return with_properties_if_unset(view_ctor_prop, properties...);
 
 // A workaround placed to prevent spurious "missing return statement at the
@@ -319,7 +319,7 @@ struct WithPropertiesIfUnset<ViewCtorProp<P...>, Property, Properties...> {
 template <typename... P, class... Properties>
 auto with_properties_if_unset(const ViewCtorProp<P...> &view_ctor_prop,
                               const Properties &... properties) {
-  std::cout << "with_properties_if_unset 1" << std::endl;
+  printf("with_properties_if_unset 1\n");
   return WithPropertiesIfUnset<ViewCtorProp<P...>, Properties...>::apply_prop(
       view_ctor_prop, properties...);
 }

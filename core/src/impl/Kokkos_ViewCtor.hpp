@@ -237,7 +237,6 @@ struct ViewCtorProp : public ViewCtorProp<void, P>... {
 #if !defined(KOKKOS_COMPILER_MSVC) || !defined(KOKKOS_COMPILER_NVCC)
 template <typename... P>
 auto with_properties_if_unset(const ViewCtorProp<P...> &view_ctor_prop) {
-  printf("with_properties_if_unset 4\n");
   return view_ctor_prop;
 }
 
@@ -257,12 +256,9 @@ auto with_properties_if_unset(const ViewCtorProp<P...> &view_ctor_prop,
     NewViewCtorProp new_view_ctor_prop(view_ctor_prop);
     static_cast<ViewCtorProp<void, Property> &>(new_view_ctor_prop).value =
         property;
-    printf("with_properties_if_unset 3\n");
     return with_properties_if_unset(new_view_ctor_prop, properties...);
-  } else {
-    printf("with_properties_if_unset 2\n");
+  } else 
     return with_properties_if_unset(view_ctor_prop, properties...);
-  }
 
 // A workaround placed to prevent spurious "missing return statement at the
 // end of non-void function" warnings from CUDA builds (issue #5470). Because
@@ -320,7 +316,6 @@ struct WithPropertiesIfUnset<ViewCtorProp<P...>, Property, Properties...> {
 template <typename... P, class... Properties>
 auto with_properties_if_unset(const ViewCtorProp<P...> &view_ctor_prop,
                               const Properties &... properties) {
-  printf("with_properties_if_unset 1\n");
   return WithPropertiesIfUnset<ViewCtorProp<P...>, Properties...>::apply_prop(
       view_ctor_prop, properties...);
 }

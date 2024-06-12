@@ -259,9 +259,10 @@ auto with_properties_if_unset(const ViewCtorProp<P...> &view_ctor_prop,
         property;
     printf("with_properties_if_unset 3\n");
     return with_properties_if_unset(new_view_ctor_prop, properties...);
-  } else
+  } else {
     printf("with_properties_if_unset 2\n");
     return with_properties_if_unset(view_ctor_prop, properties...);
+  }
 
 // A workaround placed to prevent spurious "missing return statement at the
 // end of non-void function" warnings from CUDA builds (issue #5470). Because

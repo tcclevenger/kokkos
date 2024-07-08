@@ -29,8 +29,7 @@ struct ZeroMemset<HIP, View<T, P...>> {
     KOKKOS_IMPL_HIP_SAFE_CALL(
         (exec_space.impl_internal_space_instance()->hip_memset_async_wrapper(
             dst.data(), 0,
-            dst.size() * sizeof(typename View<T, P...>::value_type),
-            exec_space.hip_stream())));
+            dst.size() * sizeof(typename View<T, P...>::value_type))));
   }
 };
 

@@ -159,8 +159,9 @@ class HIPInternal {
   }
 
   // HIP API wrappers where we set the correct device id before calling the HIP
-  // API functions. For HIP API functions that take a stream, an optional input stream is
-  // available. If no stream is given, the stream for this instance is used.
+  // API functions. For HIP API functions that take a stream, an optional input
+  // stream is available. If no stream is given, the stream for this instance is
+  // used.
 
   // Helper function for selecting correct input stream
   hipStream_t get_input_stream(hipStream_t s) const {
@@ -168,39 +169,44 @@ class HIPInternal {
   }
 
   // API wrappers
-  hipError_t hip_event_record_wrapper(hipEvent_t event, hipStream_t stream = nullptr) const {
+  hipError_t hip_event_record_wrapper(hipEvent_t event,
+                                      hipStream_t stream = nullptr) const {
     set_hip_device();
     return hipEventRecord(event, get_input_stream(stream));
   }
 
-  hipError_t hip_event_synchronize_wrapper( 	hipEvent_t  	event) const {
+  hipError_t hip_event_synchronize_wrapper(hipEvent_t event) const {
     set_hip_device();
     return hipEventSynchronize(event);
   }
 
-  hipError_t hip_graph_add_dependencies_wrapper(hipGraph_t graph, const hipGraphNode_t *from, const hipGraphNode_t *to, size_t numDependencies) const {
+  hipError_t hip_graph_add_dependencies_wrapper(hipGraph_t graph,
+                                                const hipGraphNode_t *from,
+                                                const hipGraphNode_t *to,
+                                                size_t numDependencies) const {
     set_hip_device();
-    return hipGraphAddDependencies(graph, from,  to, numDependencies);
+    return hipGraphAddDependencies(graph, from, to, numDependencies);
   }
 
-  hipError_t hip_graph_add_empty_node_wrapper(hipGraphNode_t *  	pGraphNode,
-                                              hipGraph_t  	graph,
-                                              const hipGraphNode_t *  	pDependencies,
-                                              size_t  	numDependencies ) const {
+  hipError_t hip_graph_add_empty_node_wrapper(
+      hipGraphNode_t *pGraphNode, hipGraph_t graph,
+      const hipGraphNode_t *pDependencies, size_t numDependencies) const {
     set_hip_device();
-    return hipGraphAddEmptyNode(pGraphNode,graph,pDependencies,numDependencies);
+    return hipGraphAddEmptyNode(pGraphNode, graph, pDependencies,
+                                numDependencies);
   }
 
-  hipError_t hip_graph_add_kernel_node_wrapper(hipGraphNode_t *  	pGraphNode,
-                                                hipGraph_t  	graph,
-                                                const hipGraphNode_t *  	pDependencies,
-                                                size_t  	numDependencies,
-                                                const hipKernelNodeParams *  	pNodeParams) const {
+  hipError_t hip_graph_add_kernel_node_wrapper(
+      hipGraphNode_t *pGraphNode, hipGraph_t graph,
+      const hipGraphNode_t *pDependencies, size_t numDependencies,
+      const hipKernelNodeParams *pNodeParams) const {
     set_hip_device();
-    return hipGraphAddKernelNode(pGraphNode,graph,pDependencies,numDependencies,pNodeParams);
+    return hipGraphAddKernelNode(pGraphNode, graph, pDependencies,
+                                 numDependencies, pNodeParams);
   }
 
-  hipError_t hip_graph_create_wrapper(hipGraph_t *pGraph, unsigned int flags) const {
+  hipError_t hip_graph_create_wrapper(hipGraph_t *pGraph,
+                                      unsigned int flags) const {
     set_hip_device();
     return hipGraphCreate(pGraph, flags);
   }
@@ -210,41 +216,40 @@ class HIPInternal {
     return hipGraphDestroy(graph);
   }
 
-  hipError_t hip_graph_exec_destroy_wrapper( 	hipGraphExec_t  	graphExec) const {
+  hipError_t hip_graph_exec_destroy_wrapper(hipGraphExec_t graphExec) const {
     set_hip_device();
     return hipGraphExecDestroy(graphExec);
   }
 
-  hipError_t hip_graph_instantiate_wrapper( 	hipGraphExec_t *  	pGraphExec,
-                                              hipGraph_t  	graph,
-                                              hipGraphNode_t *  	pErrorNode,
-                                              char *  	pLogBuffer,
-                                              size_t  	bufferSize ) const {
+  hipError_t hip_graph_instantiate_wrapper(hipGraphExec_t *pGraphExec,
+                                           hipGraph_t graph,
+                                           hipGraphNode_t *pErrorNode,
+                                           char *pLogBuffer,
+                                           size_t bufferSize) const {
     set_hip_device();
-    return hipGraphInstantiate(pGraphExec,graph,pErrorNode,pLogBuffer,bufferSize);
+    return hipGraphInstantiate(pGraphExec, graph, pErrorNode, pLogBuffer,
+                               bufferSize);
   }
 
-  hipError_t hip_graph_launch_wrapper(hipGraphExec_t graphExec,hipStream_t  	stream = nullptr) const {
+  hipError_t hip_graph_launch_wrapper(hipGraphExec_t graphExec,
+                                      hipStream_t stream = nullptr) const {
     set_hip_device();
-    return hipGraphLaunch(graphExec,get_input_stream(stream));
+    return hipGraphLaunch(graphExec, get_input_stream(stream));
   }
 
   hipError_t hip_memcpy_async_wrapper(void *dst, const void *src,
-                                      size_t sizeBytes,
-                                      hipMemcpyKind kind,
-                                      hipStream_t  	stream = nullptr) const {
+                                      size_t sizeBytes, hipMemcpyKind kind,
+                                      hipStream_t stream = nullptr) const {
     set_hip_device();
     return hipMemcpyAsync(dst, src, sizeBytes, kind, get_input_stream(stream));
   }
 
-  hipError_t hip_memcpy_to_symbol_async_wrapper( 	const void *  	symbol,
-                                                  const void *  	src,
-                                                  size_t  	sizeBytes,
-                                                  size_t  	offset,
-                                                  hipMemcpyKind  	kind,
-                                                  hipStream_t  	stream = nullptr ) const {
+  hipError_t hip_memcpy_to_symbol_async_wrapper(
+      const void *symbol, const void *src, size_t sizeBytes, size_t offset,
+      hipMemcpyKind kind, hipStream_t stream = nullptr) const {
     set_hip_device();
-    return hipMemcpyToSymbolAsync(symbol,src,sizeBytes,offset,kind,get_input_stream(stream));
+    return hipMemcpyToSymbolAsync(symbol, src, sizeBytes, offset, kind,
+                                  get_input_stream(stream));
   }
 
   hipError_t hip_memset_wrapper(void *dst, int value, size_t sizeBytes) const {
@@ -263,7 +268,8 @@ class HIPInternal {
     return hipStreamCreate(get_input_stream(stream));
   }
 
-  hipError_t hip_stream_synchronize_wrapper(hipStream_t  	stream = nullptr) const {
+  hipError_t hip_stream_synchronize_wrapper(
+      hipStream_t stream = nullptr) const {
     set_hip_device();
     return hipStreamSynchronize(get_input_stream(stream));
   }

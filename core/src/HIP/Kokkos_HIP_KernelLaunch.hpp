@@ -380,7 +380,7 @@ struct HIPParallelLaunchKernelInvoker<DriverType, LaunchBounds,
   static void invoke_kernel(DriverType const &driver, dim3 const &grid,
                             dim3 const &block, int shmem,
                             HIPInternal const *hip_instance) {
-    (base_t::get_kernel_func())<<<grid, block, shmem, hip_instance->m_stream>>>(
+    (base_t::get_kernel_func())<<<grid, block, shmem, hip_instance->get_stream()>>>(
         driver);
   }
 
@@ -460,8 +460,8 @@ struct HIPParallelLaunchKernelInvoker<DriverType, LaunchBounds,
       // which is guaranteed to be alive until the graph instance itself is
       // destroyed, where there should be a fence ensuring that the allocation
       // associated with this kernel on the device side isn't deleted.
-      hipMemcpyAsync(driver_ptr, &driver, sizeof(DriverType), hipMemcpyDefault,
-                     hip_instance->m_stream);
+      hip_instance->hip_memcpy_async_wrapper(
+          driver_ptr, &driver, sizeof(DriverType), hipMemcpyDefault);
 
       void const *args[] = {&driver_ptr};
 
@@ -518,15 +518,15 @@ struct HIPParallelLaunchKernelInvoker<DriverType, LaunchBounds,
     // Copy functor asynchronously from there to constant memory on the device
     KOKKOS_IMPL_HIP_SAFE_CALL(hipMemcpyToSymbolAsync(
         HIP_SYMBOL(kokkos_impl_hip_constant_memory_buffer), staging,
-        sizeof(DriverType), 0, hipMemcpyHostToDevice, hip_instance->m_stream));
+        sizeof(DriverType), 0, hipMemcpyHostToDevice, hip_instance->get_stream()));
 
     // Invoke the driver function on the device
     (base_t::
-         get_kernel_func())<<<grid, block, shmem, hip_instance->m_stream>>>();
+         get_kernel_func())<<<grid, block, shmem, hip_instance->get_stream()>>>();
 
     // Record an event that says when the constant buffer can be reused
     KOKKOS_IMPL_HIP_SAFE_CALL(hipEventRecord(HIPInternal::constantMemReusable,
-                                             hip_instance->m_stream));
+                                             hip_instance->get_stream()));
   }
 };
 

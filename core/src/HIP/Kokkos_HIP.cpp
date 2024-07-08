@@ -46,7 +46,6 @@ void HIP::impl_initialize(InitializationSettings const& settings) {
   const int hip_device_id =
       Impl::get_gpu(settings).value_or(visible_devices[0]);
 
-  Impl::HIPInternal::m_hipDev = hip_device_id;
   KOKKOS_IMPL_HIP_SAFE_CALL(
       hipGetDeviceProperties(&Impl::HIPInternal::m_deviceProp, hip_device_id));
   const auto& hipProp = Impl::HIPInternal::m_deviceProp;
@@ -100,12 +99,17 @@ void HIP::impl_finalize() {
 
   desul::Impl::finalize_lock_arrays();  // FIXME
 
-  KOKKOS_IMPL_HIP_SAFE_CALL(
-      hipEventDestroy(Impl::HIPInternal::constantMemReusable));
-  KOKKOS_IMPL_HIP_SAFE_CALL(
-      hipHostFree(Impl::HIPInternal::constantMemHostStaging));
+  for (const auto hip_device : Kokkos::Impl::HIPInternal::hip_devices) {
+    KOKKOS_IMPL_HIP_SAFE_CALL(hipSetDevice(hip_device));
+    KOKKOS_IMPL_HIP_SAFE_CALL(
+        hipEventDestroy(Impl::HIPInternal::constantMemReusable));
+    KOKKOS_IMPL_HIP_SAFE_CALL(
+        hipHostFree(Impl::HIPInternal::constantMemHostStaging));
+  }
 
   Impl::HIPInternal::singleton().finalize();
+  KOKKOS_IMPL_HIP_SAFE_CALL(
+      hipSetDevice(Impl::HIPInternal::singleton().m_hipDev));
   KOKKOS_IMPL_HIP_SAFE_CALL(
       hipStreamDestroy(Impl::HIPInternal::singleton().m_stream));
 }
@@ -164,7 +168,12 @@ void HIP::impl_static_fence(const std::string& name) {
       name,
       Kokkos::Tools::Experimental::SpecialSynchronizationCases::
           GlobalDeviceSynchronization,
-      [&]() { KOKKOS_IMPL_HIP_SAFE_CALL(hipDeviceSynchronize()); });
+      [&]() {
+        for (const auto hip_device : Kokkos::Impl::HIPInternal::hip_devices) {
+          KOKKOS_IMPL_HIP_SAFE_CALL(hipSetDevice(hip_device));
+          KOKKOS_IMPL_HIP_SAFE_CALL(hipDeviceSynchronize());
+        }
+      });
 }
 
 void HIP::fence(const std::string& name) const {

@@ -70,7 +70,8 @@ class HIPInternal {
  public:
   using size_type = ::Kokkos::HIP::size_type;
 
-  static int m_hipDev;
+  int m_hipDev;
+  static std::set<int> hip_devices = {};
   static unsigned m_multiProcCount;
   static unsigned m_maxWarpCount;
   static std::array<size_type, 3> m_maxBlock;
@@ -134,6 +135,58 @@ class HIPInternal {
   ~HIPInternal();
 
   HIPInternal() = default;
+
+  // Using HIP API function/objects will be w.r.t. device 0 unless
+  // hipSetDevice(device_id) is called with the correct device_id.
+  // The correct device_id is stored in the variable
+  // HIPInternal::m_hipDev set in HIP::impl_initialize(). In the case
+  // where multiple HIP instances are used, or threads are launched
+  // using non-default HIP execution space after initialization, all HIP
+  // API calls and uses of hipStream_t variables must be proceeded
+  // by hipSetDevice(device_id) when an execution space or HIPInternal
+  // object is provided to ensure all computation is done on the correct device.
+  void set_cuda_device() const {
+    verify_is_initialized("set_cuda_device");
+    KOKKOS_IMPL_CUDA_SAFE_CALL(cudaSetDevice(m_cudaDev));
+  }
+
+  // Set the device id and return the class stream
+  cudaStream_t get_stream() const {
+    set_cuda_device();
+    return m_stream;
+  }
+
+  // HIP API wrappers where we set the correct device id before calling
+
+  // Memory Management
+  hipError_t hip_memcpy_async_wrapper(void *dst, const void *src,
+                                      size_t sizeBytes,
+                                      hipMemcpyKind kind) const {
+    set_hip_device();
+    return hipMemcpyAsync(dst, src, sizeBytes, kind, m_stream);
+  }
+
+  hipError_t hip_memset_wrapper(void *dst, int value, size_t sizeBytes) const {
+    set_hip_device();
+    return hipMemset(dst, value, sizeBytes);
+  }
+
+  hipError_t hip_memset_async_wrapper(void *dst, int value, size_t sizeBytes,
+                                      hipStream_t stream = nullptr) const {
+    set_hip_device();
+    return hipMemsetAsync(dst, value, sizeBytes, get_input_stream(stream));
+  }
+
+  // Stream Management
+  hipError_t hip_stream_create_wrapper(hipStream_t *stream) const {
+    set_hip_device();
+    return hipStreamCreate(stream);
+  }
+
+  hipError_t hip_stream_synchronize_wrapper() const {
+    set_hip_device();
+    return hipStreamSynchronize(m_stream);
+  }
 
   // Resizing of reduction related scratch spaces
   size_type *scratch_space(std::size_t const size);

@@ -379,8 +379,7 @@ void test_deep_copy(uint32_t num_nodes) {
     EXPECT_EQ(find_errors, 0u);
   }
 
-  map_type mmap;
-  mmap.allocate_view(hmap);
+  auto mmap = create_mirror(Device{}, hmap);
   Kokkos::deep_copy(mmap, hmap);
 
   const_map_type cmap = mmap;
@@ -422,10 +421,8 @@ TEST(TEST_CATEGORY, UnorderedMap_valid_empty) {
   using Map   = Kokkos::UnorderedMap<Key, Value, TEST_EXECSPACE>;
 
   Map m{};
-  Map n{};
-  n = Map{m.capacity()};
-  n.rehash(m.capacity());
-  n.create_copy_view(m);
+  auto n = create_mirror(TEST_EXECSPACE{}, m);
+  Kokkos::deep_copy(n, m);
   ASSERT_TRUE(m.is_allocated());
   ASSERT_TRUE(n.is_allocated());
 }

@@ -808,8 +808,9 @@ class UnorderedMap {
   // Re-allocate the views of the calling UnorderedMap according to src
   // capacity, and deep copy the src data.
   template <typename SKey, typename SValue, typename SDevice>
-  std::enable_if_t<std::is_same_v<std::remove_const_t<SKey>, key_type> &&
-                   std::is_same_v<std::remove_const_t<SValue>, value_type>>
+  KOKKOS_DEPRECATED typename std::enable_if_t<
+      std::is_same_v<std::remove_const_t<SKey>, key_type> &&
+      std::is_same_v<std::remove_const_t<SValue>, value_type>>
   create_copy_view(
       UnorderedMap<SKey, SValue, SDevice, Hasher, EqualTo> const &src) {
     if (m_hash_lists.data() != src.m_hash_lists.data()) {
@@ -821,16 +822,20 @@ class UnorderedMap {
   // Allocate views of the calling UnorderedMap with the same capacity as the
   // src.
   template <typename SKey, typename SValue, typename SDevice>
-  std::enable_if_t<std::is_same_v<std::remove_const_t<SKey>, key_type> &&
-                   std::is_same_v<std::remove_const_t<SValue>, value_type>>
-  allocate_view(
-      UnorderedMap<SKey, SValue, SDevice, Hasher, EqualTo> const &src) {
+  KOKKOS_DEPRECATED_WITH_COMMENT(
+      "Warning: allocate_view() is deprecated, instead call "
+      "create_mirror(Space, UnorderedMap) to create a map with same capacity.")
+  typename std::enable_if_t<
+      std::is_same_v<std::remove_const_t<SKey>, key_type> &&
+      std::is_same_v<std::remove_const_t<SValue>,
+                     value_type>> allocate_view(UnorderedMap<SKey, SValue,
+                                                             SDevice, Hasher,
+                                                             EqualTo> const
+                                                    &src) {
     insertable_map_type tmp;
 
-    tmp.m_bounded_insert    = src.m_bounded_insert;
     tmp.m_hasher            = src.m_hasher;
     tmp.m_equal_to          = src.m_equal_to;
-    tmp.m_size()            = src.m_size();
     tmp.m_available_indexes = bitset_type(src.capacity());
     tmp.m_hash_lists        = size_type_view(
         view_alloc(WithoutInitializing, "UnorderedMap hash list"),
@@ -852,27 +857,23 @@ class UnorderedMap {
   // Deep copy view data from src. This requires that the src capacity is
   // identical to the capacity of the calling UnorderedMap.
   template <typename SKey, typename SValue, typename SDevice>
-  std::enable_if_t<std::is_same_v<std::remove_const_t<SKey>, key_type> &&
-                   std::is_same_v<std::remove_const_t<SValue>, value_type>>
-  deep_copy_view(
-      UnorderedMap<SKey, SValue, SDevice, Hasher, EqualTo> const &src) {
-#ifndef KOKKOS_ENABLE_DEPRECATED_CODE_4
-    // To deep copy UnorderedMap, capacity must be identical
-    KOKKOS_EXPECTS(capacity() == src.capacity());
-#else
+  KOKKOS_DEPRECATED_WITH_COMMENT(
+      "Warning: deep_copy_view() is deprecated, instead call "
+      "deep_copy(UnorderedMap,UnorderedMap) with maps of the same capacity.")
+  typename std::enable_if_t<
+      std::is_same_v<std::remove_const_t<SKey>, key_type> &&
+      std::is_same_v<std::remove_const_t<SValue>,
+                     value_type>> deep_copy_view(UnorderedMap<SKey, SValue,
+                                                              SDevice, Hasher,
+                                                              EqualTo> const
+                                                     &src) {
     if (capacity() != src.capacity()) {
       allocate_view(src);
-#ifdef KOKKOS_ENABLE_DEPRECATION_WARNINGS
-      Kokkos::Impl::log_warning(
-          "Warning: deep_copy_view() allocating views is deprecated. Must call "
-          "with UnorderedMaps of identical capacity, or use "
-          "create_copy_view().\n");
-#endif
     }
-#endif
 
     if (m_hash_lists.data() != src.m_hash_lists.data()) {
       Kokkos::deep_copy(m_available_indexes, src.m_available_indexes);
+      m_size() = src.m_size();
 
       using raw_deep_copy =
           Kokkos::Impl::DeepCopy<typename device_type::memory_space,
@@ -968,6 +969,17 @@ class UnorderedMap {
 
   template <typename UMap>
   friend struct Impl::UnorderedMapPrint;
+
+  template <typename DKey, typename DT, typename DDevice, typename SKey,
+            typename ST, typename SDevice, typename HHasher, typename EEqualTo>
+  friend inline void deep_copy(
+      UnorderedMap<DKey, DT, DDevice, HHasher, EEqualTo> &dst,
+      const UnorderedMap<SKey, ST, SDevice, HHasher, EEqualTo> &src);
+
+  template <typename DKey, typename DT, typename DDevice, typename SKey,
+            typename ST, typename SDevice, typename HHasher, typename EEqualTo>
+  friend auto Impl::create_mirror(
+      const UnorderedMap<SKey, ST, SDevice, HHasher, EEqualTo> &src);
 };
 
 // Specialization of deep_copy() for two UnorderedMap objects.
@@ -976,21 +988,110 @@ template <typename DKey, typename DT, typename DDevice, typename SKey,
 inline void deep_copy(
     UnorderedMap<DKey, DT, DDevice, Hasher, EqualTo> &dst,
     const UnorderedMap<SKey, ST, SDevice, Hasher, EqualTo> &src) {
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE_4
   dst.deep_copy_view(src);
+#else
+  // To deep copy UnorderedMap, capacity must be identical
+  KOKKOS_EXPECTS(dst.capacity() == src.capacity());
+
+  // Copy data from src to dst
+  if (dst.m_hash_lists.data() != src.m_hash_lists.data()) {
+    using DstMapType      = UnorderedMap<DKey, DT, DDevice, Hasher, EqualTo>;
+    using size_type       = typename DstMapType::size_type;
+    using key_type        = typename DstMapType::key_type;
+    using impl_value_type = typename DstMapType::impl_value_type;
+    constexpr auto is_set = DstMapType::is_set;
+    constexpr auto num_scalars = DstMapType::num_scalars;
+
+    Kokkos::deep_copy(dst.m_available_indexes, src.m_available_indexes);
+    dst.m_size()         = src.m_size();
+    dst.m_bounded_insert = src.m_bounded_insert;
+
+    using raw_deep_copy =
+        Kokkos::Impl::DeepCopy<typename DDevice::memory_space,
+                               typename SDevice::memory_space>;
+
+    raw_deep_copy(dst.m_hash_lists.data(), src.m_hash_lists.data(),
+                  sizeof(size_type) * src.m_hash_lists.extent(0));
+    raw_deep_copy(dst.m_next_index.data(), src.m_next_index.data(),
+                  sizeof(size_type) * src.m_next_index.extent(0));
+    raw_deep_copy(dst.m_keys.data(), src.m_keys.data(),
+                  sizeof(key_type) * src.m_keys.extent(0));
+    if (!is_set) {
+      raw_deep_copy(dst.m_values.data(), src.m_values.data(),
+                    sizeof(impl_value_type) * src.m_values.extent(0));
+    }
+    raw_deep_copy(dst.m_scalars.data(), src.m_scalars.data(),
+                  sizeof(int) * num_scalars);
+
+    Kokkos::fence(
+        "Kokkos::deep_copy(Kokkos::UnorderedMap,Kokkos::UnorderedMap): fence "
+        "after copy to dst.");
+  }
+#endif
 }
 
-// Specialization of create_mirror() for an UnorderedMap object.
+namespace Impl {
+// Helper for create_mirror() specializations
+template <typename DKey, typename DT, typename DDevice, typename SKey,
+          typename ST, typename SDevice, typename Hasher, typename EqualTo>
+auto create_mirror(
+    const UnorderedMap<SKey, ST, SDevice, Hasher, EqualTo> &src) {
+  using ReturnType = UnorderedMap<DKey, DT, DDevice, Hasher, EqualTo>;
+  ReturnType map;
+
+  map.m_hasher   = src.m_hasher;
+  map.m_equal_to = src.m_equal_to;
+
+  map.m_available_indexes = typename ReturnType::bitset_type(src.capacity());
+  map.m_hash_lists        = typename ReturnType::size_type_view(
+      view_alloc(WithoutInitializing, "UnorderedMap hash list"),
+      src.m_hash_lists.extent(0));
+  map.m_next_index = typename ReturnType::size_type_view(
+      view_alloc(WithoutInitializing, "UnorderedMap next index"),
+      src.m_next_index.extent(0));
+  map.m_keys = typename ReturnType::key_type_view(
+      view_alloc(WithoutInitializing, "UnorderedMap keys"),
+      src.m_keys.extent(0));
+  map.m_values = typename ReturnType::value_type_view(
+      view_alloc(WithoutInitializing, "UnorderedMap values"),
+      src.m_values.extent(0));
+  map.m_scalars = typename ReturnType::scalars_view("UnorderedMap scalars");
+
+  return map;
+}
+};  // namespace Impl
+
+// Specializations of create_mirror() for an UnorderedMap object.
 template <typename Key, typename ValueType, typename Device, typename Hasher,
           typename EqualTo>
-typename UnorderedMap<Key, ValueType, Device, Hasher, EqualTo>::HostMirror
-create_mirror(
+auto create_mirror(
     const UnorderedMap<Key, ValueType, Device, Hasher, EqualTo> &src) {
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE_4
   typename UnorderedMap<Key, ValueType, Device, Hasher, EqualTo>::HostMirror
-      dst;
-  dst.allocate_view(src);
-  return dst;
+      h_map;
+  h_map.allocate_view(src);
+  return h_map;
+#else
+  using ReturnType = typename UnorderedMap<Key, ValueType, Device, Hasher,
+                                           EqualTo>::HostMirror;
+  return Impl::create_mirror<typename ReturnType::key_type,
+                             typename ReturnType::value_type,
+                             typename ReturnType::device_type>(src);
+#endif
 }
 
+template <typename Space, typename Key, typename ValueType, typename Device,
+          typename Hasher, typename EqualTo,
+          typename Enable = std::enable_if_t<Kokkos::is_space<Space>::value>>
+auto create_mirror(
+    const Space &,
+    const UnorderedMap<Key, ValueType, Device, Hasher, EqualTo> &src) {
+  using ReturnType = UnorderedMap<Key, ValueType, Space, Hasher, EqualTo>;
+  return Impl::create_mirror<typename ReturnType::key_type,
+                             typename ReturnType::value_type,
+                             typename ReturnType::device_type>(src);
+}
 }  // namespace Kokkos
 
 #ifdef KOKKOS_IMPL_PUBLIC_INCLUDE_NOTDEFINED_UNORDEREDMAP

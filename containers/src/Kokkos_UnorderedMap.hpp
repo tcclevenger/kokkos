@@ -310,6 +310,9 @@ class UnorderedMap {
                size_type capacity_hint = 0, hasher_type hasher = hasher_type(),
                equal_to_type equal_to = equal_to_type())
       : m_bounded_insert(true), m_hasher(hasher), m_equal_to(equal_to) {
+
+    printf("DEBUG OUT: %s\n", device_type{}.name());
+
     if (!is_insertable_map) {
       Kokkos::Impl::throw_runtime_exception(
           "Cannot construct a non-insertable (i.e. const key_type) "

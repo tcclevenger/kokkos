@@ -310,7 +310,6 @@ class UnorderedMap {
                size_type capacity_hint = 0, hasher_type hasher = hasher_type(),
                equal_to_type equal_to = equal_to_type())
       : m_bounded_insert(true), m_hasher(hasher), m_equal_to(equal_to) {
-
     printf("DEBUG OUT: %s\n", device_type{}.name());
 
     if (!is_insertable_map) {
@@ -811,11 +810,17 @@ class UnorderedMap {
   // Re-allocate the views of the calling UnorderedMap according to src
   // capacity, and deep copy the src data.
   template <typename SKey, typename SValue, typename SDevice>
-  KOKKOS_DEPRECATED typename std::enable_if_t<
+  KOKKOS_DEPRECATED(
+      "Warning: create_copy_view(UnorderedMap) is deprecated, instead call "
+      "create_mirror({Space,} UnorderedMap) and deep_copy(UnorderedMap, "
+      "UnorderedMap).")
+  typename std::enable_if_t<
       std::is_same_v<std::remove_const_t<SKey>, key_type> &&
-      std::is_same_v<std::remove_const_t<SValue>, value_type>>
-  create_copy_view(
-      UnorderedMap<SKey, SValue, SDevice, Hasher, EqualTo> const &src) {
+      std::is_same_v<std::remove_const_t<SValue>,
+                     value_type>> create_copy_view(UnorderedMap<SKey, SValue,
+                                                                SDevice, Hasher,
+                                                                EqualTo> const
+                                                       &src) {
     if (m_hash_lists.data() != src.m_hash_lists.data()) {
       allocate_view(src);
       deep_copy_view(src);
@@ -826,8 +831,9 @@ class UnorderedMap {
   // src.
   template <typename SKey, typename SValue, typename SDevice>
   KOKKOS_DEPRECATED_WITH_COMMENT(
-      "Warning: allocate_view() is deprecated, instead call "
-      "create_mirror(Space, UnorderedMap) to create a map with same capacity.")
+      "Warning: allocate_view(UnorderedMap) is deprecated, instead call "
+      "create_mirror({Space,} UnorderedMap) to create a map with identical "
+      "capacity.")
   typename std::enable_if_t<
       std::is_same_v<std::remove_const_t<SKey>, key_type> &&
       std::is_same_v<std::remove_const_t<SValue>,
@@ -861,8 +867,9 @@ class UnorderedMap {
   // identical to the capacity of the calling UnorderedMap.
   template <typename SKey, typename SValue, typename SDevice>
   KOKKOS_DEPRECATED_WITH_COMMENT(
-      "Warning: deep_copy_view() is deprecated, instead call "
-      "deep_copy(UnorderedMap,UnorderedMap) with maps of the same capacity.")
+      "Warning: deep_copy_view(UnorderedMap) is deprecated, instead call "
+      "deep_copy(UnorderedMap, UnorderedMap) with maps of identical "
+      "capacities.")
   typename std::enable_if_t<
       std::is_same_v<std::remove_const_t<SKey>, key_type> &&
       std::is_same_v<std::remove_const_t<SValue>,

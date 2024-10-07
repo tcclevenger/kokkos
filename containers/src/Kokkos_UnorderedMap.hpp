@@ -810,7 +810,7 @@ class UnorderedMap {
   // Re-allocate the views of the calling UnorderedMap according to src
   // capacity, and deep copy the src data.
   template <typename SKey, typename SValue, typename SDevice>
-  KOKKOS_DEPRECATED(
+  KOKKOS_DEPRECATED_WITH_COMMENT(
       "Warning: create_copy_view(UnorderedMap) is deprecated, instead call "
       "create_mirror({Space,} UnorderedMap) and deep_copy(UnorderedMap, "
       "UnorderedMap).")

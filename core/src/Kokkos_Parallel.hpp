@@ -143,10 +143,12 @@ template <class ExecPolicy, class FunctorType>
 inline void parallel_for(
     const ExecPolicy& policy, const FunctorType& functor,
     std::enable_if_t<is_execution_policy<ExecPolicy>::value>* = nullptr) {
-  /** Enforce correct use **/
-  Impl::CheckUsage<Impl::UsageRequires::insideExecEnv>::check("parallel_for",
-                                                              policy);
-  Kokkos::parallel_for("", policy, functor);
+  KOKKOS_IF_ON_HOST((
+      /** Enforce correct use **/
+      Impl::CheckUsage<Impl::UsageRequires::insideExecEnv>::check(
+          "parallel_for", policy);
+      Kokkos::parallel_for("", policy, functor);))
+  KOKKOS_IF_ON_DEVICE(((void)policy; (void)functor;))
 }
 
 template <class FunctorType>

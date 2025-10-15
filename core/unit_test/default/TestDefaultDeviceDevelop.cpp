@@ -14,6 +14,12 @@ import kokkos.core;
 
 namespace Test {
 
-TEST(defaultdevicetype, development_test) {}
+void simple_range_loop() {
+  Kokkos::parallel_for(
+      Kokkos::RangePolicy(0, 1),
+      KOKKOS_LAMBDA(const int i) { printf("%d\n", i); });
+}
+
+TEST(defaultdevicetype, development_test) { simple_range_loop(); }
 
 }  // namespace Test

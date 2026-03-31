@@ -14,19 +14,19 @@ import kokkos.core;
 
 namespace Test {
 
-struct my_custom_layout_right {
+struct layout_right_eamxx {
   template <class Extents>
   class mapping;
 };
 
 template <class Extents>
-class my_custom_layout_right::mapping {
+class layout_right_eamxx::mapping {
  public:
   using extents_type = Extents;
   using index_type   = typename extents_type::index_type;
   using size_type    = typename extents_type::size_type;
   using rank_type    = typename extents_type::rank_type;
-  using layout_type  = my_custom_layout_right;
+  using layout_type  = layout_right_eamxx;
 
   KOKKOS_DEFAULTED_FUNCTION constexpr mapping(const mapping&) noexcept =
       default;
@@ -119,14 +119,45 @@ class my_custom_layout_right::mapping {
  private:
   extents_type m_extents{};
   index_type m_stride_0_factor = 1;
+  Kokkos::layout_stride::mapping<extents_type> m_internal_mapping;
 
   template <class... SliceSpecifiers>
   KOKKOS_INLINE_FUNCTION constexpr auto submdspan_mapping_impl(
       SliceSpecifiers... slices) const {
-    // compute sub extents
+    // Compute sub extents
     using src_ext_t = Extents;
     auto dst_ext    = Kokkos::submdspan_extents(extents(), slices...);
     using dst_ext_t = decltype(dst_ext);
+
+    // Figure out sub layout type
+    // rank 1, subview dim 0 -> layout_right_eamxx
+    // rank 2, subview dim0 -> layout_right_eamxx
+    // rank 2, subview dim1 -> layout_stride
+    // rank > 2, subview dim0 -> layout_right_eamxx
+    // rank > 2, subview dim1 -> layout_right_eamxx
+    // rank > 2, subview dim > 1 -> layout_stride
+    constexpr bool is_layout_right_eamxx = 
+      dst_ext_t::rank() == 0 ||
+
+    // Compute offset
+
+    if constexpr (is_layout_right_eamxx) {
+      using dst_mapping_t = typename layout_right_eamxx::mapping<dst_ext_t>;
+
+      // Compute stride_0_factor
+
+
+      return Kokkos::submdspan_mapping_result<dst_mapping_t>{
+               dst_mapping_t(dst_ext, stride_0_factor), offset};
+    } else /*layout_stride*/ {
+      using dst_mapping_t = typename layout_stride::mapping<dst_ext_t>;
+
+      // Compute strides
+
+      
+      return Kokkos::submdspan_mapping_result<dst_mapping_t>{
+          dst_mapping_t(dst_ext, strides), offset};
+    }
   }
 
   template <class... SliceSpecifiers>

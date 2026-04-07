@@ -182,30 +182,28 @@ auto TileSizeRecommended<ExecutionSpace>::get(Policy const& policy) {
 template <typename... Properties>
 struct MDRangePolicy;
 
-// Note: If MDRangePolicy has a primary template, implicit CTAD (deduction
-// guides) are generated -> MDRangePolicy<> by some compilers, which is
-// incorrect.  By making it a template specialization instead, no implicit CTAD
-// is generated.  This works because there has to be at least one property
-// specified (which is Rank<...>); otherwise, we'd get the static_assert
-// "Kokkos::Error: MD iteration pattern not defined".  This template
-// specialization uses <P, Properties...> in all places for correctness.
-template <typename P, typename... Properties>
-struct MDRangePolicy<P, Properties...>
-    : public Kokkos::Impl::PolicyTraits<P, Properties...> {
-  using traits          = Kokkos::Impl::PolicyTraits<P, Properties...>;
+namespace Impl {
+
+template <typename T, typename... Properties>
+class ImplMDRangePolicy;
+
+template <ExecutionSpace ExecSpace, typename... Properties>
+struct ImplMDRangePolicy<ExecSpace, Properties...>
+    : public Kokkos::Impl::PolicyTraits<Properties...> {
+  using traits          = Kokkos::Impl::PolicyTraits<Properties...>;
   using execution_space = typename traits::execution_space;
-  using range_policy    = RangePolicy<P, Properties...>;
+  using range_policy    = RangePolicy<Properties...>;
 
   using impl_range_policy =
       RangePolicy<execution_space, typename traits::schedule_type,
                   typename traits::index_type>;
 
   using execution_policy =
-      MDRangePolicy<P, Properties...>;  // needed for is_execution_policy
-                                        // interrogation
+      Kokkos::MDRangePolicy<Properties...>;  // needed for is_execution_policy
+                                             // interrogation
 
-  template <class... OtherProperties>
-  friend struct MDRangePolicy;
+  template <class T, class... OtherProperties>
+  friend struct ImplMDRangePolicy;
 
   static_assert(!std::is_void_v<typename traits::iteration_pattern>,
                 "Kokkos Error: MD iteration pattern not defined");
@@ -262,16 +260,16 @@ struct MDRangePolicy<P, Properties...>
     return m_space;
   }
 
-  MDRangePolicy() = default;
+  ImplMDRangePolicy() = default;
 
   template <typename LT, std::size_t LN, typename UT, std::size_t UN,
             typename TT = array_index_type, std::size_t TN = rank,
             typename = std::enable_if_t<std::is_integral_v<LT> &&
                                         std::is_integral_v<UT> &&
                                         std::is_integral_v<TT>>>
-  MDRangePolicy(const LT (&lower)[LN], const UT (&upper)[UN],
-                const TT (&tile)[TN] = {})
-      : MDRangePolicy(
+  ImplMDRangePolicy(const LT (&lower)[LN], const UT (&upper)[UN],
+                    const TT (&tile)[TN] = {})
+      : ImplMDRangePolicy(
             Impl::to_array_potentially_narrowing<index_type, decltype(m_lower)>(
                 lower),
             Impl::to_array_potentially_narrowing<index_type, decltype(m_upper)>(
@@ -288,10 +286,10 @@ struct MDRangePolicy<P, Properties...>
             typename = std::enable_if_t<std::is_integral_v<LT> &&
                                         std::is_integral_v<UT> &&
                                         std::is_integral_v<TT>>>
-  MDRangePolicy(const typename traits::execution_space& work_space,
-                const LT (&lower)[LN], const UT (&upper)[UN],
-                const TT (&tile)[TN] = {})
-      : MDRangePolicy(
+  ImplMDRangePolicy(const typename traits::execution_space& work_space,
+                    const LT (&lower)[LN], const UT (&upper)[UN],
+                    const TT (&tile)[TN] = {})
+      : ImplMDRangePolicy(
             work_space,
             Impl::to_array_potentially_narrowing<index_type, decltype(m_lower)>(
                 lower),
@@ -307,31 +305,33 @@ struct MDRangePolicy<P, Properties...>
   // NOTE: Keeping these two constructor despite the templated constructors
   // from Kokkos arrays for backwards compability to allow construction from
   // double-braced initializer lists.
-  MDRangePolicy(point_type const& lower, point_type const& upper,
-                tile_type const& tile = tile_type{})
-      : MDRangePolicy(typename traits::execution_space(), lower, upper, tile) {}
+  ImplMDRangePolicy(point_type const& lower, point_type const& upper,
+                    tile_type const& tile = tile_type{})
+      : ImplMDRangePolicy(typename traits::execution_space(), lower, upper,
+                          tile) {}
 
-  MDRangePolicy(const typename traits::execution_space& work_space,
-                point_type const& lower, point_type const& upper,
-                tile_type const& tile = tile_type{})
+  ImplMDRangePolicy(const typename traits::execution_space& work_space,
+                    point_type const& lower, point_type const& upper,
+                    tile_type const& tile = tile_type{})
       : m_space(work_space), m_lower(lower), m_upper(upper), m_tile(tile) {
     update_tiling_properties();
   }
 
   template <typename T, std::size_t NT = rank,
             typename = std::enable_if_t<std::is_integral_v<T>>>
-  MDRangePolicy(Kokkos::Array<T, rank> const& lower,
-                Kokkos::Array<T, rank> const& upper,
-                Kokkos::Array<T, NT> const& tile = Kokkos::Array<T, NT>{})
-      : MDRangePolicy(typename traits::execution_space(), lower, upper, tile) {}
+  ImplMDRangePolicy(Kokkos::Array<T, rank> const& lower,
+                    Kokkos::Array<T, rank> const& upper,
+                    Kokkos::Array<T, NT> const& tile = Kokkos::Array<T, NT>{})
+      : ImplMDRangePolicy(typename traits::execution_space(), lower, upper,
+                          tile) {}
 
   template <typename T, std::size_t NT = rank,
             typename = std::enable_if_t<std::is_integral_v<T>>>
-  MDRangePolicy(const typename traits::execution_space& work_space,
-                Kokkos::Array<T, rank> const& lower,
-                Kokkos::Array<T, rank> const& upper,
-                Kokkos::Array<T, NT> const& tile = Kokkos::Array<T, NT>{})
-      : MDRangePolicy(
+  ImplMDRangePolicy(const typename traits::execution_space& work_space,
+                    Kokkos::Array<T, rank> const& lower,
+                    Kokkos::Array<T, rank> const& upper,
+                    Kokkos::Array<T, NT> const& tile = Kokkos::Array<T, NT>{})
+      : ImplMDRangePolicy(
             work_space,
             Impl::to_array_potentially_narrowing<index_type, decltype(m_lower)>(
                 lower),
@@ -340,9 +340,9 @@ struct MDRangePolicy<P, Properties...>
             Impl::to_array_potentially_narrowing<index_type, decltype(m_tile)>(
                 tile)) {}
 
-  MDRangePolicy(const Impl::PolicyUpdate, const MDRangePolicy& other,
-                typename traits::execution_space space)
-      : MDRangePolicy(other) {
+  ImplMDRangePolicy(const Impl::PolicyUpdate, const ImplMDRangePolicy& other,
+                    typename traits::execution_space space)
+      : ImplMDRangePolicy(other) {
     this->m_space = std::move(space);
     // Reset auto-tuned tiles if the execution space changes since the computed
     // tile size may be different
@@ -353,7 +353,7 @@ struct MDRangePolicy<P, Properties...>
   }
 
   template <class... OtherProperties>
-  MDRangePolicy(const MDRangePolicy<OtherProperties...> p)
+  ImplMDRangePolicy(const ImplMDRangePolicy<OtherProperties...> p)
       : traits(p),  // base class may contain data such as desired occupancy
         m_space(p.m_space),
         m_lower(p.m_lower),
@@ -479,6 +479,67 @@ struct MDRangePolicy<P, Properties...>
   }
 };
 
+// Specialization of MDRangePolicy for defining work over a range of an integral
+// type, split up among all resources of a thread team
+template <TeamHandle Handle, class... Properties>
+class ImplMDRangePolicy<Handle, Properties...>
+    : public TeamVectorMDRange<
+          typename Impl::PolicyTraits<Properties...>::iteration_pattern,
+          Handle> {
+  using base_t = TeamVectorMDRange<
+      typename Impl::PolicyTraits<Properties...>::iteration_pattern, Handle>;
+
+ public:
+  using base_t::base_t;
+
+  using traits = typename Impl::PolicyTraits<Properties...>;
+  static constexpr int rank = traits::iteration_pattern::rank;
+  static_assert(std::same_as<typename traits::execution_type, Handle>);
+
+  // using index_type = typename traits::index_type;
+  // using point_type = Kokkos::Array<std::int64_t, rank>;
+  // using tile_type = Kokkos::Array<std::int64_t, rank>;
+
+  // template <typename LT, std::size_t LN, typename UT, std::size_t UN, typename TT, std::size_t TN = rank>
+  // ImplMDRangePolicy(const typename traits::team_handle& team_handle,
+  //                   const LT (&lower)[LN], const UT (&upper)[UN],
+  //                   const TT (&tile)[TN] = {})
+  //     : ImplMDRangePolicy(team_handle,
+  //     Impl::to_array_potentially_narrowing<index_type, point_type>(
+  //               lower),
+  //           Impl::to_array_potentially_narrowing<index_type, point_type>(
+  //               upper)) {}
+
+  // ImplMDRangePolicy(const typename traits::team_handle& team_handle,
+  //                   point_type const& lower, point_type const& upper,
+  //                   tile_type const& tile = tile_type{})
+  //     : ImplMDRangePolicy(team_handle, lower, upper) {}
+
+  KOKKOS_INLINE_FUNCTION const typename traits::team_handle& space() const {
+    return static_cast<const base_t*>(this)->team;
+  }
+};
+}  // namespace Impl
+
+// Note: If MDRangePolicy has a primary template, implicit CTAD (deduction
+// guides) are generated -> MDRangePolicy<> by some compilers, which is
+// incorrect.  By making it a template specialization instead, no implicit CTAD
+// is generated.  This works because there has to be at least one property
+// specified (which is Rank<...>); otherwise, we'd get the static_assert
+// "Kokkos::Error: MD iteration pattern not defined".  This template
+// specialization uses <P, Properties...> in all places for correctness.
+template <typename P, typename... Properties>
+class MDRangePolicy<P, Properties...>
+    : public Impl::ImplMDRangePolicy<
+          typename Impl::PolicyTraits<P, Properties...>::execution_type, P,
+          Properties...> {
+ public:
+  using execution_type =
+      typename Impl::PolicyTraits<P, Properties...>::execution_type;
+  using base_t = Impl::ImplMDRangePolicy<execution_type, P, Properties...>;
+  using base_t::base_t;
+};
+
 template <typename LT, size_t N, typename UT>
 MDRangePolicy(const LT (&)[N], const UT (&)[N]) -> MDRangePolicy<Rank<N>>;
 
@@ -494,15 +555,14 @@ template <typename LT, size_t N, typename UT, typename TT, size_t TN>
 MDRangePolicy(DefaultExecutionSpace const&, const LT (&)[N], const UT (&)[N],
               const TT (&)[TN]) -> MDRangePolicy<Rank<N>>;
 
-template <typename ES, typename LT, size_t N, typename UT,
-          typename = std::enable_if_t<is_execution_space_v<ES>>>
-MDRangePolicy(ES const&, const LT (&)[N], const UT (&)[N])
-    -> MDRangePolicy<ES, Rank<N>>;
+template <Impl::ExecutionTypeConcept Exec, typename LT, size_t N, typename UT>
+MDRangePolicy(Exec const&, const LT (&)[N], const UT (&)[N])
+    -> MDRangePolicy<Exec, Rank<N>>;
 
-template <typename ES, typename LT, size_t N, typename UT, typename TT,
-          size_t TN, typename = std::enable_if_t<is_execution_space_v<ES>>>
-MDRangePolicy(ES const&, const LT (&)[N], const UT (&)[N], const TT (&)[TN])
-    -> MDRangePolicy<ES, Rank<N>>;
+template <Impl::ExecutionTypeConcept Exec, typename LT, size_t N, typename UT,
+          typename TT, size_t TN>
+MDRangePolicy(Exec const&, const LT (&)[N], const UT (&)[N], const TT (&)[TN])
+    -> MDRangePolicy<Exec, Rank<N>>;
 
 template <typename T, size_t N>
 MDRangePolicy(Array<T, N> const&, Array<T, N> const&) -> MDRangePolicy<Rank<N>>;
@@ -520,15 +580,13 @@ MDRangePolicy(DefaultExecutionSpace const&, Array<T, N> const&,
               Array<T, N> const&, Array<T, NT> const&)
     -> MDRangePolicy<Rank<N>>;
 
-template <typename ES, typename T, size_t N,
-          typename = std::enable_if_t<is_execution_space_v<ES>>>
-MDRangePolicy(ES const&, Array<T, N> const&, Array<T, N> const&)
-    -> MDRangePolicy<ES, Rank<N>>;
+template <Impl::ExecutionTypeConcept Exec, typename T, size_t N>
+MDRangePolicy(Exec const&, Array<T, N> const&, Array<T, N> const&)
+    -> MDRangePolicy<Exec, Rank<N>>;
 
-template <typename ES, typename T, size_t N, size_t NT,
-          typename = std::enable_if_t<is_execution_space_v<ES>>>
-MDRangePolicy(ES const&, Array<T, N> const&, Array<T, N> const&,
-              Array<T, NT> const&) -> MDRangePolicy<ES, Rank<N>>;
+template <Impl::ExecutionTypeConcept Exec, typename T, size_t N, size_t NT>
+MDRangePolicy(Exec const&, Array<T, N> const&, Array<T, N> const&,
+              Array<T, NT> const&) -> MDRangePolicy<Exec, Rank<N>>;
 
 }  // namespace Kokkos
 

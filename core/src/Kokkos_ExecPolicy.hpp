@@ -13,6 +13,7 @@ static_assert(false,
 #include <impl/Kokkos_Traits.hpp>
 #include <impl/Kokkos_Error.hpp>
 #include <impl/Kokkos_AnalyzePolicy.hpp>
+#include <Kokkos_Array.hpp>
 #include <Kokkos_BitManipulation.hpp>
 #include <Kokkos_Concepts.hpp>
 #include <Kokkos_TypeInfo.hpp>
@@ -1100,6 +1101,17 @@ struct TeamVectorMDRange<Rank<N, OuterDir, InnerDir>, TeamHandle> {
                                            Args&&... args)
       : team(team_), boundaries{static_cast<BoundaryType>(args)...} {
     static_assert(sizeof...(Args) == total_nest_level);
+  }
+
+    KOKKOS_INLINE_FUNCTION TeamVectorMDRange(TeamHandleType const& team_,
+                                           Kokkos::Array<std::int64_t, total_nest_level> lower,
+                                           Kokkos::Array<std::int64_t, total_nest_level> upper)
+      : team(team_) {
+    // Assert that all lower bounds are 0 and populate boundaries from upper
+    for (int i = 0; i < total_nest_level; ++i) {
+      KOKKOS_ASSERT(lower[i] == 0);
+      boundaries[i] = static_cast<BoundaryType>(upper[i]);
+    }
   }
 
   TeamHandleType const& team;

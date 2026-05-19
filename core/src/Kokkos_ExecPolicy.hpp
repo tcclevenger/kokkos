@@ -1103,12 +1103,13 @@ struct TeamVectorMDRange<Rank<N, OuterDir, InnerDir>, TeamHandle> {
     static_assert(sizeof...(Args) == total_nest_level);
   }
 
-    KOKKOS_INLINE_FUNCTION TeamVectorMDRange(TeamHandleType const& team_,
-                                           Kokkos::Array<std::int64_t, total_nest_level> lower,
-                                           Kokkos::Array<std::int64_t, total_nest_level> upper)
+  KOKKOS_INLINE_FUNCTION TeamVectorMDRange(
+      TeamHandleType const& team_,
+      Kokkos::Array<std::size_t, total_nest_level> lower,
+      Kokkos::Array<std::size_t, total_nest_level> upper)
       : team(team_) {
-    // Assert that all lower bounds are 0 and populate boundaries from upper
     for (int i = 0; i < total_nest_level; ++i) {
+      // FIXME: We should support non-zero lower bounds
       KOKKOS_ASSERT(lower[i] == 0);
       boundaries[i] = static_cast<BoundaryType>(upper[i]);
     }

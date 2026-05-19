@@ -492,7 +492,7 @@ class ImplMDRangePolicy<Handle, Properties...>
  public:
   using base_t::base_t;
 
-  using traits = typename Impl::PolicyTraits<Properties...>;
+  using traits              = typename Impl::PolicyTraits<Properties...>;
   static constexpr int rank = traits::iteration_pattern::rank;
   static_assert(std::same_as<typename traits::execution_type, Handle>);
 
@@ -500,8 +500,9 @@ class ImplMDRangePolicy<Handle, Properties...>
   // using point_type = Kokkos::Array<std::int64_t, rank>;
   // using tile_type = Kokkos::Array<std::int64_t, rank>;
 
-  // template <typename LT, std::size_t LN, typename UT, std::size_t UN, typename TT, std::size_t TN = rank>
-  // ImplMDRangePolicy(const typename traits::team_handle& team_handle,
+  // template <typename LT, std::size_t LN, typename UT, std::size_t UN,
+  // typename TT, std::size_t TN = rank> ImplMDRangePolicy(const typename
+  // traits::team_handle& team_handle,
   //                   const LT (&lower)[LN], const UT (&upper)[UN],
   //                   const TT (&tile)[TN] = {})
   //     : ImplMDRangePolicy(team_handle,

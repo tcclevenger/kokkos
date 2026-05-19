@@ -50,9 +50,11 @@ namespace Test {
 template <class Exec, class X, class Y>
 KOKKOS_INLINE_FUNCTION void sum_views(const Exec& exec, const X& x,
                                       const Y& y) {
-  auto policy = Kokkos::MDRangePolicy<Kokkos::Rank<2>>(exec, {0, 0}, {x.extent(0), x.extent(1)});
+  auto policy = Kokkos::MDRangePolicy<Kokkos::Rank<2>>(
+      exec, {0, 0}, {x.extent(0), x.extent(1)});
   Kokkos::parallel_for(
-      policy, KOKKOS_LAMBDA(const int& i, const int& j) { x(i, j) += y(i, j); });
+      policy,
+      KOKKOS_LAMBDA(const int& i, const int& j) { x(i, j) += y(i, j); });
 }
 
 void test_self_similar_mdrange_policy_computation() {
@@ -60,30 +62,43 @@ void test_self_similar_mdrange_policy_computation() {
   using HostViewType = typename ViewType::host_mirror_type;
 
   int num_teams = dims[0];
-  int n0 = dims[1];
-  int n1 = dims[2];
+  int n0        = dims[1];
+  int n1        = dims[2];
 
   Kokkos::View<int**> v_x("v_x", n0, n1), v_y("v_y", n0, n1);
-  Kokkos::View<int***> M_x("M_x", num_teams, n0, n1), M_y("M_y", num_teams, n0, n1);
+  Kokkos::View<int***> M_x("M_x", num_teams, n0, n1),
+      M_y("M_y", num_teams, n0, n1);
 
   // Initialize v_x and v_y with values from 1 to N
   Kokkos::parallel_for(
-      "init_v_x", Kokkos::MDRangePolicy<Kokkos::Rank<2>>(Kokkos::DefaultExecutionSpace(), {0, 0}, {n0, n1}),
-      KOKKOS_LAMBDA(const int& i, const int& j) { v_x(i, j) = i * n1 + j + 1; });
+      "init_v_x",
+      Kokkos::MDRangePolicy<Kokkos::Rank<2>>(Kokkos::DefaultExecutionSpace(),
+                                             {0, 0}, {n0, n1}),
+      KOKKOS_LAMBDA(const int& i, const int& j) {
+        v_x(i, j) = i * n1 + j + 1;
+      });
   Kokkos::parallel_for(
-      "init_v_y", Kokkos::MDRangePolicy<Kokkos::Rank<2>>(Kokkos::DefaultExecutionSpace(), {0, 0}, {n0, n1}),
-      KOKKOS_LAMBDA(const int& i, const int& j) { v_y(i, j) = i * n1 + j + 1; });
+      "init_v_y",
+      Kokkos::MDRangePolicy<Kokkos::Rank<2>>(Kokkos::DefaultExecutionSpace(),
+                                             {0, 0}, {n0, n1}),
+      KOKKOS_LAMBDA(const int& i, const int& j) {
+        v_y(i, j) = i * n1 + j + 1;
+      });
 
   // Initialize M_x and M_y with values from 1 to M (flattened index)
   Kokkos::parallel_for(
-      "init_M_x", Kokkos::MDRangePolicy<Kokkos::Rank<3>>(Kokkos::DefaultExecutionSpace(), {0, 0, 0}, {num_teams, n0, n1}),
+      "init_M_x",
+      Kokkos::MDRangePolicy<Kokkos::Rank<3>>(Kokkos::DefaultExecutionSpace(),
+                                             {0, 0, 0}, {num_teams, n0, n1}),
       KOKKOS_LAMBDA(const int& i, const int& j, const int& k) {
-          M_x(i, j, k) = i * n0 * n1 + j * n1 + k + 1;
+        M_x(i, j, k) = i * n0 * n1 + j * n1 + k + 1;
       });
   Kokkos::parallel_for(
-      "init_M_y", Kokkos::MDRangePolicy<Kokkos::Rank<3>>(Kokkos::DefaultExecutionSpace(), {0, 0, 0}, {num_teams, n0, n1}),
+      "init_M_y",
+      Kokkos::MDRangePolicy<Kokkos::Rank<3>>(Kokkos::DefaultExecutionSpace(),
+                                             {0, 0, 0}, {num_teams, n0, n1}),
       KOKKOS_LAMBDA(const int& i, const int& j, const int& k) {
-          M_y(i, j, k) = i * n0 * n1 + j * n1 + k + 1;
+        M_y(i, j, k) = i * n0 * n1 + j * n1 + k + 1;
       });
 
   // // Call sum_views(ExecSpace):
@@ -94,7 +109,8 @@ void test_self_similar_mdrange_policy_computation() {
   // Kokkos::parallel_for(
   //     "apxyFromTeam", Kokkos::TeamPolicy(num_teams, Kokkos::AUTO()),
   //     KOKKOS_LAMBDA(const team_t& team) {
-  //       sum_views(team, Kokkos::subview(M_x, team.league_rank(), Kokkos::ALL()),
+  //       sum_views(team, Kokkos::subview(M_x, team.league_rank(),
+  //       Kokkos::ALL()),
   //                 Kokkos::subview(M_y, team.league_rank(), Kokkos::ALL()));
   //     });
 

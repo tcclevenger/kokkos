@@ -19,8 +19,8 @@ KOKKOS_INLINE_FUNCTION void sum_views(const Exec& exec, const X& x,
                                       const Y& y) {
   auto policy = Kokkos::MDRangePolicy(exec, {0, 0}, {x.extent(0), x.extent(1)});
   Kokkos::parallel_for(
-      policy, KOKKOS_LAMBDA(const int& i, const int& j) { x(i, j) += y(i, j);
-      });
+      policy,
+      KOKKOS_LAMBDA(const int& i, const int& j) { x(i, j) += y(i, j); });
 }
 
 void test_self_similar_mdrange_policy_computation() {
@@ -69,23 +69,24 @@ void test_self_similar_mdrange_policy_computation() {
         M_y(i, j, k) = i * n0 * n1 + j * n1 + k + 1;
       });
 
-//   auto v_x_host = Kokkos::create_mirror_view_and_copy(
-//       Kokkos::DefaultHostExecutionSpace(), v_x);
-//   auto v_y_host = Kokkos::create_mirror_view_and_copy(
-//       Kokkos::DefaultHostExecutionSpace(), v_y);
-//   auto M_x_host = Kokkos::create_mirror_view_and_copy(
-//       Kokkos::DefaultHostExecutionSpace(), M_x);
-//   auto M_y_host = Kokkos::create_mirror_view_and_copy(
-//       Kokkos::DefaultHostExecutionSpace(), M_y);
+  //   auto v_x_host = Kokkos::create_mirror_view_and_copy(
+  //       Kokkos::DefaultHostExecutionSpace(), v_x);
+  //   auto v_y_host = Kokkos::create_mirror_view_and_copy(
+  //       Kokkos::DefaultHostExecutionSpace(), v_y);
+  //   auto M_x_host = Kokkos::create_mirror_view_and_copy(
+  //       Kokkos::DefaultHostExecutionSpace(), M_x);
+  //   auto M_y_host = Kokkos::create_mirror_view_and_copy(
+  //       Kokkos::DefaultHostExecutionSpace(), M_y);
 
-//   Kokkos::parallel_for(
-//       Kokkos::MDRangePolicy<Kokkos::DefaultHostExecutionSpace, Kokkos::Rank<2>>(
-//           Kokkos::DefaultHostExecutionSpace(), {0, 0}, {n0, n1}),
-//       KOKKOS_LAMBDA(const int& i, const int& j) {
-//         printf(
-//             "v_x(%d, %d) = %d, v_y(%d, %d) = %d\n",
-//             i, j, v_x_host(i, j), i, j, v_y_host(i, j));
-//       });
+  //   Kokkos::parallel_for(
+  //       Kokkos::MDRangePolicy<Kokkos::DefaultHostExecutionSpace,
+  //       Kokkos::Rank<2>>(
+  //           Kokkos::DefaultHostExecutionSpace(), {0, 0}, {n0, n1}),
+  //       KOKKOS_LAMBDA(const int& i, const int& j) {
+  //         printf(
+  //             "v_x(%d, %d) = %d, v_y(%d, %d) = %d\n",
+  //             i, j, v_x_host(i, j), i, j, v_y_host(i, j));
+  //       });
 
   // Call sum_views(ExecSpace):
   sum_views(Kokkos::DefaultExecutionSpace(), v_x, v_y);
@@ -95,26 +96,32 @@ void test_self_similar_mdrange_policy_computation() {
   Kokkos::parallel_for(
       "apxyFromTeam", Kokkos::TeamPolicy(num_teams, Kokkos::AUTO()),
       KOKKOS_LAMBDA(const team_t& team) {
-        sum_views(team, Kokkos::subview(M_x, team.league_rank(),Kokkos::ALL(), Kokkos::ALL()),
-                  Kokkos::subview(M_y, team.league_rank(), Kokkos::ALL(), Kokkos::ALL()));
+        sum_views(team,
+                  Kokkos::subview(M_x, team.league_rank(), Kokkos::ALL(),
+                                  Kokkos::ALL()),
+                  Kokkos::subview(M_y, team.league_rank(), Kokkos::ALL(),
+                                  Kokkos::ALL()));
       });
 
   // Check v_x
   size_t result = 0;
   Kokkos::parallel_reduce(
-      "Check1", v_x.extent(0)*v_x.extent(1),
+      "Check1", v_x.extent(0) * v_x.extent(1),
       KOKKOS_LAMBDA(int i, size_t& val) {
         int i0 = i / v_x.extent(1);
         int i1 = i % v_x.extent(1);
-        val += v_x(i0,i1);
-    }, result);
-  auto N = n0*n1;
+        val += v_x(i0, i1);
+      },
+      result);
+  auto N              = n0 * n1;
   size_t expected_v_x = N * (N + 1);
   ASSERT_EQ(result, expected_v_x);
 
   // Check individual elements of v_x
   Kokkos::parallel_reduce(
-      "Check1_elements", Kokkos::MDRangePolicy<Kokkos::Rank<2>>(Kokkos::DefaultExecutionSpace(), {0, 0}, {n0, n1}),
+      "Check1_elements",
+      Kokkos::MDRangePolicy<Kokkos::Rank<2>>(Kokkos::DefaultExecutionSpace(),
+                                             {0, 0}, {n0, n1}),
       KOKKOS_LAMBDA(int i, int j, size_t& errors) {
         auto expected = 2 * (i * n1 + j + 1);
         if (v_x(i, j) != expected) ++errors;

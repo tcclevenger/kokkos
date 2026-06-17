@@ -170,9 +170,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
         KOKKOS_LAMBDA(const TeamType& team) {
           int leagueRank = team.league_rank();
 
-          auto teamRange =
-              Kokkos::TeamThreadMDRange<Kokkos::Rank<2, Direction>, TeamType>(
-                  team, n0, n1);
+          auto teamRange = Kokkos::TeamThreadMDRange(team, n0, n1);
 
           Kokkos::parallel_for(teamRange, [=](int i, int j) {
             v(leagueRank, i, j) += fillFlattenedIndex(leagueRank, i, j);
@@ -190,15 +188,17 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
     using ViewType     = typename Kokkos::View<DataType****, ExecSpace>;
     using HostViewType = typename ViewType::host_mirror_type;
 
-    int leagueSize = dims[0];
-    int n0         = dims[1];
-    int n1         = dims[2];
-    int n2         = dims[3];
+    int leagueSize                    = dims[0];
+    int n0                            = dims[1];
+    int n1                            = dims[2];
+    int n2                            = dims[3];
+    Kokkos::Array<int, 3> upperBounds = {n0, n1, n2};
 
     // For 4D, use lower bound constructors
-    int s0 = 1;
-    int s1 = 1;
-    int s2 = 1;
+    int s0                            = 1;
+    int s1                            = 1;
+    int s2                            = 1;
+    Kokkos::Array<int, 3> lowerBounds = {s0, s1, s2};
 
     ViewType v("v", leagueSize, n0, n1, n2);
     FillFlattenedIndex fillFlattenedIndex(leagueSize, n0, n1, n2);
@@ -211,8 +211,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
           int leagueRank = team.league_rank();
 
           auto teamRange =
-              Kokkos::TeamThreadMDRange<Kokkos::Rank<3, Direction>, TeamType>(
-                  team, {s0, s1, s2}, {n0, n1, n2});
+              Kokkos::TeamThreadMDRange(team, lowerBounds, upperBounds);
 
           Kokkos::parallel_for(teamRange, [=](int i, int j, int k) {
             v(leagueRank, i, j, k) += fillFlattenedIndex(leagueRank, i, j, k);
@@ -246,9 +245,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
         KOKKOS_LAMBDA(const TeamType& team) {
           int leagueRank = team.league_rank();
 
-          auto teamRange =
-              Kokkos::TeamThreadMDRange<Kokkos::Rank<4, Direction>, TeamType>(
-                  team, n0, n1, n2, n3);
+          auto teamRange = Kokkos::TeamThreadMDRange(team, n0, n1, n2, n3);
 
           Kokkos::parallel_for(teamRange, [=](int i, int j, int k, int l) {
             v(leagueRank, i, j, k, l) +=
@@ -284,9 +281,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
         KOKKOS_LAMBDA(const TeamType& team) {
           int leagueRank = team.league_rank();
 
-          auto teamRange =
-              Kokkos::TeamThreadMDRange<Kokkos::Rank<5, Direction>, TeamType>(
-                  team, n0, n1, n2, n3, n4);
+          auto teamRange = Kokkos::TeamThreadMDRange(team, n0, n1, n2, n3, n4);
 
           Kokkos::parallel_for(
               teamRange, [=](int i, int j, int k, int l, int m) {
@@ -325,8 +320,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
           int leagueRank = team.league_rank();
 
           auto teamRange =
-              Kokkos::TeamThreadMDRange<Kokkos::Rank<6, Direction>, TeamType>(
-                  team, n0, n1, n2, n3, n4, n5);
+              Kokkos::TeamThreadMDRange(team, n0, n1, n2, n3, n4, n5);
 
           Kokkos::parallel_for(
               teamRange, [=](int i, int j, int k, int l, int m, int n) {
@@ -367,8 +361,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
           int leagueRank = team.league_rank();
 
           auto teamRange =
-              Kokkos::TeamThreadMDRange<Kokkos::Rank<7, Direction>, TeamType>(
-                  team, n0, n1, n2, n3, n4, n5, n6);
+              Kokkos::TeamThreadMDRange(team, n0, n1, n2, n3, n4, n5, n6);
 
           Kokkos::parallel_for(
               teamRange, [=](int i, int j, int k, int l, int m, int n, int o) {
@@ -398,9 +391,7 @@ struct TestTeamThreadMDRangeParallelFor : public TestTeamMDParallelFor {
     Kokkos::parallel_for(
         Kokkos::TeamPolicy<ExecSpace>(1, Kokkos::AUTO),
         KOKKOS_LAMBDA(const TeamType& team) {
-          auto teamRange =
-              Kokkos::TeamThreadMDRange<Kokkos::Rank<3, Direction>, TeamType>(
-                  team, n0, n1, n2);
+          auto teamRange = Kokkos::TeamThreadMDRange(team, n0, n1, n2);
 
           Kokkos::parallel_for(teamRange, [=](int i, int j, int k) {
             v(i, j, k) += fillFlattenedIndex(i, j, k);
@@ -423,14 +414,16 @@ struct TestThreadVectorMDRangeParallelFor : public TestTeamMDParallelFor {
     using ViewType     = typename Kokkos::View<DataType****, ExecSpace>;
     using HostViewType = typename ViewType::host_mirror_type;
 
-    int leagueSize = dims[0];
-    int n0         = dims[1];
-    int n1         = dims[2];
-    int n2         = dims[3];
+    int leagueSize                    = dims[0];
+    int n0                            = dims[1];
+    int n1                            = dims[2];
+    int n2                            = dims[3];
+    Kokkos::Array<int, 2> upperBounds = {n1, n2};
 
     // For 4D, use lower bound constructors
-    int s1 = 1;
-    int s2 = 1;
+    int s1                            = 1;
+    int s2                            = 1;
+    Kokkos::Array<int, 2> lowerBounds = {s1, s2};
 
     ViewType v("v", leagueSize, n0, n1, n2);
     FillFlattenedIndex fillFlattenedIndex(leagueSize, n0, n1, n2);
@@ -444,8 +437,7 @@ struct TestThreadVectorMDRangeParallelFor : public TestTeamMDParallelFor {
 
           auto teamThreadRange = Kokkos::TeamThreadRange(team, n0);
           auto teamRange =
-              Kokkos::ThreadVectorMDRange<Kokkos::Rank<2, Direction>, TeamType>(
-                  team, {s1, s2}, {n1, n2});
+              Kokkos::ThreadVectorMDRange(team, lowerBounds, upperBounds);
 
           Kokkos::parallel_for(teamThreadRange, [=](int i) {
             Kokkos::parallel_for(teamRange, [=](int j, int k) {
@@ -482,9 +474,7 @@ struct TestThreadVectorMDRangeParallelFor : public TestTeamMDParallelFor {
           int leagueRank = team.league_rank();
 
           auto teamThreadRange = Kokkos::TeamThreadRange(team, n0);
-          auto teamRange =
-              Kokkos::ThreadVectorMDRange<Kokkos::Rank<3, Direction>, TeamType>(
-                  team, n1, n2, n3);
+          auto teamRange       = Kokkos::ThreadVectorMDRange(team, n1, n2, n3);
 
           Kokkos::parallel_for(teamThreadRange, [=](int i) {
             Kokkos::parallel_for(teamRange, [=](int j, int k, int l) {
@@ -523,9 +513,7 @@ struct TestThreadVectorMDRangeParallelFor : public TestTeamMDParallelFor {
           int leagueRank = team.league_rank();
 
           auto teamThreadRange = Kokkos::TeamThreadRange(team, n0);
-          auto teamRange =
-              Kokkos::ThreadVectorMDRange<Kokkos::Rank<4, Direction>, TeamType>(
-                  team, n1, n2, n3, n4);
+          auto teamRange = Kokkos::ThreadVectorMDRange(team, n1, n2, n3, n4);
 
           Kokkos::parallel_for(teamThreadRange, [=](int i) {
             Kokkos::parallel_for(teamRange, [=](int j, int k, int l, int m) {
@@ -566,8 +554,7 @@ struct TestThreadVectorMDRangeParallelFor : public TestTeamMDParallelFor {
 
           auto teamThreadRange = Kokkos::TeamThreadRange(team, n0);
           auto teamRange =
-              Kokkos::ThreadVectorMDRange<Kokkos::Rank<5, Direction>, TeamType>(
-                  team, n1, n2, n3, n4, n5);
+              Kokkos::ThreadVectorMDRange(team, n1, n2, n3, n4, n5);
 
           Kokkos::parallel_for(teamThreadRange, [=](int i) {
             Kokkos::parallel_for(
@@ -611,8 +598,7 @@ struct TestThreadVectorMDRangeParallelFor : public TestTeamMDParallelFor {
 
           auto teamThreadRange = Kokkos::TeamThreadRange(team, n0);
           auto teamRange =
-              Kokkos::ThreadVectorMDRange<Kokkos::Rank<6, Direction>, TeamType>(
-                  team, n1, n2, n3, n4, n5, n6);
+              Kokkos::ThreadVectorMDRange(team, n1, n2, n3, n4, n5, n6);
 
           Kokkos::parallel_for(teamThreadRange, [=](int i) {
             Kokkos::parallel_for(
@@ -652,9 +638,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
         KOKKOS_LAMBDA(const TeamType& team) {
           int leagueRank = team.league_rank();
 
-          auto teamRange =
-              Kokkos::TeamVectorMDRange<Kokkos::Rank<2, Direction>, TeamType>(
-                  team, n0, n1);
+          auto teamRange = Kokkos::TeamVectorMDRange(team, n0, n1);
 
           Kokkos::parallel_for(teamRange, [=](int i, int j) {
             v(leagueRank, i, j) += fillFlattenedIndex(leagueRank, i, j);
@@ -672,15 +656,17 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
     using ViewType     = typename Kokkos::View<DataType****, ExecSpace>;
     using HostViewType = typename ViewType::host_mirror_type;
 
-    int leagueSize = dims[0];
-    int n0         = dims[1];
-    int n1         = dims[2];
-    int n2         = dims[3];
+    int leagueSize                    = dims[0];
+    int n0                            = dims[1];
+    int n1                            = dims[2];
+    int n2                            = dims[3];
+    Kokkos::Array<int, 3> upperBounds = {n0, n1, n2};
 
     // For 4D, use lower bound constructors
-    int s0 = 1;
-    int s1 = 1;
-    int s2 = 1;
+    int s0                            = 1;
+    int s1                            = 1;
+    int s2                            = 1;
+    Kokkos::Array<int, 3> lowerBounds = {s0, s1, s2};
 
     ViewType v("v", leagueSize, n0, n1, n2);
     FillFlattenedIndex fillFlattenedIndex(leagueSize, n0, n1, n2);
@@ -693,8 +679,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
           int leagueRank = team.league_rank();
 
           auto teamRange =
-              Kokkos::TeamVectorMDRange<Kokkos::Rank<3, Direction>, TeamType>(
-                  team, {s0, s1, s2}, {n0, n1, n2});
+              Kokkos::TeamVectorMDRange(team, lowerBounds, upperBounds);
 
           Kokkos::parallel_for(teamRange, [=](int i, int j, int k) {
             v(leagueRank, i, j, k) += fillFlattenedIndex(leagueRank, i, j, k);
@@ -728,9 +713,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
         KOKKOS_LAMBDA(const TeamType& team) {
           int leagueRank = team.league_rank();
 
-          auto teamRange =
-              Kokkos::TeamVectorMDRange<Kokkos::Rank<4, Direction>, TeamType>(
-                  team, n0, n1, n2, n3);
+          auto teamRange = Kokkos::TeamVectorMDRange(team, n0, n1, n2, n3);
 
           Kokkos::parallel_for(teamRange, [=](int i, int j, int k, int l) {
             v(leagueRank, i, j, k, l) +=
@@ -766,9 +749,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
         KOKKOS_LAMBDA(const TeamType& team) {
           int leagueRank = team.league_rank();
 
-          auto teamRange =
-              Kokkos::TeamVectorMDRange<Kokkos::Rank<5, Direction>, TeamType>(
-                  team, n0, n1, n2, n3, n4);
+          auto teamRange = Kokkos::TeamVectorMDRange(team, n0, n1, n2, n3, n4);
 
           Kokkos::parallel_for(
               teamRange, [=](int i, int j, int k, int l, int m) {
@@ -807,8 +788,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
           int leagueRank = team.league_rank();
 
           auto teamRange =
-              Kokkos::TeamVectorMDRange<Kokkos::Rank<6, Direction>, TeamType>(
-                  team, n0, n1, n2, n3, n4, n5);
+              Kokkos::TeamVectorMDRange(team, n0, n1, n2, n3, n4, n5);
 
           Kokkos::parallel_for(
               teamRange, [=](int i, int j, int k, int l, int m, int n) {
@@ -849,8 +829,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
           int leagueRank = team.league_rank();
 
           auto teamRange =
-              Kokkos::TeamVectorMDRange<Kokkos::Rank<7, Direction>, TeamType>(
-                  team, n0, n1, n2, n3, n4, n5, n6);
+              Kokkos::TeamVectorMDRange(team, n0, n1, n2, n3, n4, n5, n6);
 
           Kokkos::parallel_for(
               teamRange, [=](int i, int j, int k, int l, int m, int n, int o) {
@@ -881,9 +860,7 @@ struct TestTeamVectorMDRangeParallelFor : public TestTeamMDParallelFor {
     Kokkos::parallel_for(
         Kokkos::TeamPolicy<ExecSpace>(1, Kokkos::AUTO),
         KOKKOS_LAMBDA(const TeamType& team) {
-          auto teamRange =
-              Kokkos::TeamVectorMDRange<Kokkos::Rank<4, Direction>, TeamType>(
-                  team, n0, n1, n2, n3);
+          auto teamRange = Kokkos::TeamVectorMDRange(team, n0, n1, n2, n3);
 
           Kokkos::parallel_for(teamRange, [=](int i, int j, int k, int l) {
             v(i, j, k, l) += fillFlattenedIndex(i, j, k, l);
@@ -966,8 +943,7 @@ struct TestTeamThreadMDRangeParallelReduce : public TestTeamMDParallelReduce {
           DataType teamSum;
 
           Kokkos::parallel_reduce(
-              Kokkos::TeamThreadMDRange<Kokkos::Rank<2, Direction>, TeamType>(
-                  team, n0, n1),
+              Kokkos::TeamThreadMDRange(team, n0, n1),
               [=](const int& i, const int& j, DataType& threadSum) {
                 threadSum += v(leagueRank, i, j);
               },
@@ -987,22 +963,24 @@ struct TestTeamThreadMDRangeParallelReduce : public TestTeamMDParallelReduce {
       DimsType const& dims) {
     using ViewType = typename Kokkos::View<DataType****, ExecSpace>;
 
-    int leagueSize = dims[0];
-    int n0         = dims[1];
-    int n1         = dims[2];
-    int n2         = dims[3];
+    int leagueSize                    = dims[0];
+    int n0                            = dims[1];
+    int n1                            = dims[2];
+    int n2                            = dims[3];
+    Kokkos::Array<int, 4> upperBounds = {leagueSize, n0, n1, n2};
 
     // For 4D, use lower bound constructors
-    int s0 = 1;
-    int s1 = 1;
-    int s2 = 1;
+    int s0                            = 1;
+    int s1                            = 1;
+    int s2                            = 1;
+    Kokkos::Array<int, 4> lowerBounds = {0, s0, s1, s2};
 
     ViewType v("v", leagueSize, n0, n1, n2);
     FillFlattenedIndex fillFlattenedIndex(leagueSize, n0, n1, n2);
 
     Kokkos::parallel_for(
-        Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<4>>(
-            {0, s0, s1, s2}, {leagueSize, n0, n1, n2}),
+        Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<4>>(lowerBounds,
+                                                          upperBounds),
         KOKKOS_LAMBDA(const int i, const int j, const int k, const int l) {
           v(i, j, k, l) = fillFlattenedIndex(i, j, k, l);
         });
@@ -1018,8 +996,7 @@ struct TestTeamThreadMDRangeParallelReduce : public TestTeamMDParallelReduce {
           DataType teamSum;
 
           Kokkos::parallel_reduce(
-              Kokkos::TeamThreadMDRange<Kokkos::Rank<3, Direction>, TeamType>(
-                  team, {s0, s1, s2}, {n0, n1, n2}),
+              Kokkos::TeamThreadMDRange(team, {s0, s1, s2}, {n0, n1, n2}),
               [=](const int& i, const int& j, const int& k,
                   DataType& threadSum) { threadSum += v(leagueRank, i, j, k); },
               teamSum);
@@ -1067,8 +1044,7 @@ struct TestTeamThreadMDRangeParallelReduce : public TestTeamMDParallelReduce {
           DataType teamSum;
 
           Kokkos::parallel_reduce(
-              Kokkos::TeamThreadMDRange<Kokkos::Rank<4, Direction>, TeamType>(
-                  team, n0, n1, n2, n3),
+              Kokkos::TeamThreadMDRange(team, n0, n1, n2, n3),
               [=](const int& i, const int& j, const int& k, const int& l,
                   DataType& threadSum) {
                 threadSum += v(leagueRank, i, j, k, l);
@@ -1118,8 +1094,7 @@ struct TestTeamThreadMDRangeParallelReduce : public TestTeamMDParallelReduce {
           DataType teamSum;
 
           Kokkos::parallel_reduce(
-              Kokkos::TeamThreadMDRange<Kokkos::Rank<5, Direction>, TeamType>(
-                  team, n0, n1, n2, n3, n4),
+              Kokkos::TeamThreadMDRange(team, n0, n1, n2, n3, n4),
               [=](const int& i, const int& j, const int& k, const int& l,
                   const int& m, DataType& threadSum) {
                 threadSum += v(leagueRank, i, j, k, l, m);
@@ -1177,8 +1152,7 @@ struct TestTeamThreadMDRangeParallelReduce : public TestTeamMDParallelReduce {
           DataType teamSum;
 
           Kokkos::parallel_reduce(
-              Kokkos::TeamThreadMDRange<Kokkos::Rank<6, Direction>, TeamType>(
-                  team, n0, n1, n2, n3, n4, n5),
+              Kokkos::TeamThreadMDRange(team, n0, n1, n2, n3, n4, n5),
               [=](const int& i, const int& j, const int& k, const int& l,
                   const int& m, const int& n, DataType& threadSum) {
                 threadSum += v(leagueRank, i, j, k, l, m, n);
@@ -1237,8 +1211,7 @@ struct TestTeamThreadMDRangeParallelReduce : public TestTeamMDParallelReduce {
           DataType teamSum;
 
           Kokkos::parallel_reduce(
-              Kokkos::TeamThreadMDRange<Kokkos::Rank<7, Direction>, TeamType>(
-                  team, n0, n1, n2, n3, n4, n5, n6),
+              Kokkos::TeamThreadMDRange(team, n0, n1, n2, n3, n4, n5, n6),
               [=](const int& i, const int& j, const int& k, const int& l,
                   const int& m, const int& n, const int& o,
                   DataType& threadSum) {
@@ -1264,21 +1237,23 @@ struct TestThreadVectorMDRangeParallelReduce : public TestTeamMDParallelReduce {
       DimsType const& dims) {
     using ViewType = typename Kokkos::View<DataType****, ExecSpace>;
 
-    int leagueSize = dims[0];
-    int n0         = dims[1];
-    int n1         = dims[2];
-    int n2         = dims[3];
+    int leagueSize                    = dims[0];
+    int n0                            = dims[1];
+    int n1                            = dims[2];
+    int n2                            = dims[3];
+    Kokkos::Array<int, 4> upperBounds = {leagueSize, n0, n1, n2};
 
     // For 4D, use lower bound constructors
-    int s1 = 1;
-    int s2 = 1;
+    int s1                            = 1;
+    int s2                            = 1;
+    Kokkos::Array<int, 4> lowerBounds = {0, 0, s1, s2};
 
     ViewType v("v", leagueSize, n0, n1, n2);
     FillFlattenedIndex fillFlattenedIndex(leagueSize, n0, n1, n2);
 
     Kokkos::parallel_for(
-        Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<4>>(
-            {0, 0, s1, s2}, {leagueSize, n0, n1, n2}),
+        Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<4>>(lowerBounds,
+                                                          upperBounds),
         KOKKOS_LAMBDA(const int i, const int j, const int k, const int l) {
           v(i, j, k, l) = fillFlattenedIndex(i, j, k, l);
         });
@@ -1294,8 +1269,7 @@ struct TestThreadVectorMDRangeParallelReduce : public TestTeamMDParallelReduce {
 
           auto teamThreadRange = Kokkos::TeamThreadRange(team, n0);
           auto threadVectorRange =
-              Kokkos::ThreadVectorMDRange<Kokkos::Rank<2, Direction>, TeamType>(
-                  team, {s1, s2}, {n1, n2});
+              Kokkos::ThreadVectorMDRange(team, {s1, s2}, {n1, n2});
 
           Kokkos::parallel_for(teamThreadRange, [=, &leagueSum](const int& i) {
             DataType threadSum = 0;
@@ -1350,8 +1324,7 @@ struct TestThreadVectorMDRangeParallelReduce : public TestTeamMDParallelReduce {
 
           auto teamThreadRange = Kokkos::TeamThreadRange(team, n0);
           auto threadVectorRange =
-              Kokkos::ThreadVectorMDRange<Kokkos::Rank<3, Direction>, TeamType>(
-                  team, n1, n2, n3);
+              Kokkos::ThreadVectorMDRange(team, n1, n2, n3);
 
           Kokkos::parallel_for(teamThreadRange, [=, &leagueSum](const int& i) {
             DataType threadSum = 0;
@@ -1408,8 +1381,7 @@ struct TestThreadVectorMDRangeParallelReduce : public TestTeamMDParallelReduce {
 
           auto teamThreadRange = Kokkos::TeamThreadRange(team, n0);
           auto threadVectorRange =
-              Kokkos::ThreadVectorMDRange<Kokkos::Rank<4, Direction>, TeamType>(
-                  team, n1, n2, n3, n4);
+              Kokkos::ThreadVectorMDRange(team, n1, n2, n3, n4);
 
           Kokkos::parallel_for(teamThreadRange, [=, &leagueSum](const int& i) {
             DataType threadSum = 0;
@@ -1471,8 +1443,7 @@ struct TestThreadVectorMDRangeParallelReduce : public TestTeamMDParallelReduce {
 
           auto teamThreadRange = Kokkos::TeamThreadRange(team, n0);
           auto threadVectorRange =
-              Kokkos::ThreadVectorMDRange<Kokkos::Rank<5, Direction>, TeamType>(
-                  team, n1, n2, n3, n4, n5);
+              Kokkos::ThreadVectorMDRange(team, n1, n2, n3, n4, n5);
 
           Kokkos::parallel_for(teamThreadRange, [=, &leagueSum](const int& i) {
             DataType threadSum = 0;
@@ -1538,8 +1509,7 @@ struct TestThreadVectorMDRangeParallelReduce : public TestTeamMDParallelReduce {
 
           auto teamThreadRange = Kokkos::TeamThreadRange(team, n0);
           auto threadVectorRange =
-              Kokkos::ThreadVectorMDRange<Kokkos::Rank<6, Direction>, TeamType>(
-                  team, n1, n2, n3, n4, n5, n6);
+              Kokkos::ThreadVectorMDRange(team, n1, n2, n3, n4, n5, n6);
 
           Kokkos::parallel_for(teamThreadRange, [=, &leagueSum](const int& i) {
             DataType threadSum = 0;
@@ -1571,22 +1541,24 @@ struct TestTeamVectorMDRangeParallelReduce : public TestTeamMDParallelReduce {
       DimsType const& dims) {
     using ViewType = typename Kokkos::View<DataType****, ExecSpace>;
 
-    int leagueSize = dims[0];
-    int n0         = dims[1];
-    int n1         = dims[2];
-    int n2         = dims[3];
+    int leagueSize                    = dims[0];
+    int n0                            = dims[1];
+    int n1                            = dims[2];
+    int n2                            = dims[3];
+    Kokkos::Array<int, 4> upperBounds = {leagueSize, n0, n1, n2};
 
     // For 4D, use lower bound constructors
-    int s0 = 1;
-    int s1 = 1;
-    int s2 = 1;
+    int s0                            = 1;
+    int s1                            = 1;
+    int s2                            = 1;
+    Kokkos::Array<int, 4> lowerBounds = {0, s0, s1, s2};
 
     ViewType v("v", leagueSize, n0, n1, n2);
     FillFlattenedIndex fillFlattenedIndex(leagueSize, n0, n1, n2);
 
     Kokkos::parallel_for(
-        Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<4>>(
-            {0, s0, s1, s2}, {leagueSize, n0, n1, n2}),
+        Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<4>>(lowerBounds,
+                                                          upperBounds),
         KOKKOS_LAMBDA(const int i, const int j, const int k, const int l) {
           v(i, j, k, l) = fillFlattenedIndex(i, j, k, l);
         });
@@ -1602,8 +1574,7 @@ struct TestTeamVectorMDRangeParallelReduce : public TestTeamMDParallelReduce {
           DataType teamSum;
 
           auto teamVectorRange =
-              Kokkos::TeamVectorMDRange<Kokkos::Rank<3, Direction>, TeamType>(
-                  team, {s0, s1, s2}, {n0, n1, n2});
+              Kokkos::TeamVectorMDRange(team, {s0, s1, s2}, {n0, n1, n2});
 
           Kokkos::parallel_reduce(
               teamVectorRange,
@@ -1654,8 +1625,7 @@ struct TestTeamVectorMDRangeParallelReduce : public TestTeamMDParallelReduce {
           DataType teamSum;
 
           auto teamVectorRange =
-              Kokkos::TeamVectorMDRange<Kokkos::Rank<4, Direction>, TeamType>(
-                  team, n0, n1, n2, n3);
+              Kokkos::TeamVectorMDRange(team, n0, n1, n2, n3);
 
           Kokkos::parallel_reduce(
               teamVectorRange,
@@ -1708,8 +1678,7 @@ struct TestTeamVectorMDRangeParallelReduce : public TestTeamMDParallelReduce {
           DataType teamSum;
 
           auto teamVectorRange =
-              Kokkos::TeamVectorMDRange<Kokkos::Rank<5, Direction>, TeamType>(
-                  team, n0, n1, n2, n3, n4);
+              Kokkos::TeamVectorMDRange(team, n0, n1, n2, n3, n4);
 
           Kokkos::parallel_reduce(
               teamVectorRange,
@@ -1767,8 +1736,7 @@ struct TestTeamVectorMDRangeParallelReduce : public TestTeamMDParallelReduce {
           DataType teamSum;
 
           auto teamVectorRange =
-              Kokkos::TeamVectorMDRange<Kokkos::Rank<6, Direction>, TeamType>(
-                  team, n0, n1, n2, n3, n4, n5);
+              Kokkos::TeamVectorMDRange(team, n0, n1, n2, n3, n4, n5);
 
           Kokkos::parallel_reduce(
               teamVectorRange,
@@ -1830,8 +1798,7 @@ struct TestTeamVectorMDRangeParallelReduce : public TestTeamMDParallelReduce {
           DataType teamSum;
 
           auto teamVectorRange =
-              Kokkos::TeamVectorMDRange<Kokkos::Rank<7, Direction>, TeamType>(
-                  team, n0, n1, n2, n3, n4, n5, n6);
+              Kokkos::TeamVectorMDRange(team, n0, n1, n2, n3, n4, n5, n6);
 
           Kokkos::parallel_reduce(
               teamVectorRange,

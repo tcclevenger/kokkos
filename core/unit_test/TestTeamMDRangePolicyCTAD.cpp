@@ -16,53 +16,165 @@ struct TestTeamThreadMDRangeCTAD {
   using TeamHandle = TeamPolicy::member_type;
 
   KOKKOS_FUNCTION void operator()(TeamHandle const& team_handle) const {
+    // Rank 2 TeamThreadMDRange
     {
-      Kokkos::TeamThreadMDRange md_range(team_handle, 0, 0);
+      Kokkos::TeamThreadMDRange md_range1(team_handle, 1, 1);
       static_assert(
-          std::is_same_v<Kokkos::TeamThreadMDRange<Kokkos::Rank<2>, TeamHandle>,
-                         decltype(md_range)>);
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<2>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamThreadMDRange md_range2(team_handle, {0, 0}, {1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<2>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 2> lower{0, 0}, upper{1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<2>, TeamHandle, int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 3 TeamThreadMDRange
     {
-      Kokkos::TeamThreadMDRange md_range(team_handle, 0, 0, 0);
+      Kokkos::TeamThreadMDRange md_range1(team_handle, 1, 1, 1);
       static_assert(
-          std::is_same_v<Kokkos::TeamThreadMDRange<Kokkos::Rank<3>, TeamHandle>,
-                         decltype(md_range)>);
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<3>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamThreadMDRange md_range2(team_handle, {0, 0, 0}, {1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<3>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 3> lower{0, 0, 0}, upper{1, 1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<3>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 4 TeamThreadMDRange
     {
-      Kokkos::TeamThreadMDRange md_range(team_handle, 0, 0, 0, 0);
+      Kokkos::TeamThreadMDRange md_range1(team_handle, 1, 1, 1, 1);
       static_assert(
-          std::is_same_v<Kokkos::TeamThreadMDRange<Kokkos::Rank<4>, TeamHandle>,
-                         decltype(md_range)>);
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<4>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamThreadMDRange md_range2(team_handle, {0, 0, 0, 0}, {1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<4>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 4> lower{0, 0, 0, 0}, upper{1, 1, 1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<4>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 5 TeamThreadMDRange
     {
-      Kokkos::TeamThreadMDRange md_range(team_handle, 0, 0, 0, 0, 0);
+      Kokkos::TeamThreadMDRange md_range1(team_handle, 1, 1, 1, 1, 1);
       static_assert(
-          std::is_same_v<Kokkos::TeamThreadMDRange<Kokkos::Rank<5>, TeamHandle>,
-                         decltype(md_range)>);
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<5>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamThreadMDRange md_range2(team_handle, {0, 0, 0, 0, 0}, {1, 1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<5>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 5> lower{0, 0, 0, 0, 0}, upper{1, 1, 1, 1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<5>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 6 TeamThreadMDRange
     {
-      Kokkos::TeamThreadMDRange md_range(team_handle, 0, 0, 0, 0, 0, 0);
+      Kokkos::TeamThreadMDRange md_range1(team_handle, 1, 1, 1, 1, 1, 1);
       static_assert(
-          std::is_same_v<Kokkos::TeamThreadMDRange<Kokkos::Rank<6>, TeamHandle>,
-                         decltype(md_range)>);
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<6>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamThreadMDRange md_range2(team_handle, {0, 0, 0, 0, 0, 0}, {1, 1, 1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<6>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 6> lower{0, 0, 0, 0, 0, 0}, upper{1, 1, 1, 1, 1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<6>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 7 TeamThreadMDRange
     {
-      Kokkos::TeamThreadMDRange md_range(team_handle, 0, 0, 0, 0, 0, 0, 0);
+      Kokkos::TeamThreadMDRange md_range1(team_handle, 1, 1, 1, 1, 1, 1, 1);
       static_assert(
-          std::is_same_v<Kokkos::TeamThreadMDRange<Kokkos::Rank<7>, TeamHandle>,
-                         decltype(md_range)>);
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<7>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamThreadMDRange md_range2(team_handle, {0, 0, 0, 0, 0, 0, 0}, {1, 1, 1, 1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<7>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 7> lower{0, 0, 0, 0, 0, 0, 0}, upper{1, 1, 1, 1, 1, 1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<7>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 8 TeamThreadMDRange
     {
-      Kokkos::TeamThreadMDRange md_range(team_handle, 0, 0, 0, 0, 0, 0, 0, 0);
+      Kokkos::TeamThreadMDRange md_range1(team_handle, 1, 1, 1, 1, 1, 1, 1, 1);
       static_assert(
-          std::is_same_v<Kokkos::TeamThreadMDRange<Kokkos::Rank<8>, TeamHandle>,
-                         decltype(md_range)>);
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<8>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamThreadMDRange md_range2(team_handle, {0, 0, 0, 0, 0, 0, 0, 0}, {1, 1, 1, 1, 1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamThreadMDRange<Kokkos::Rank<8>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 8> lower{0, 0, 0, 0, 0, 0, 0, 0}, upper{1, 1, 1, 1, 1, 1, 1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<8>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
   }
 
@@ -76,52 +188,165 @@ struct TestTeamVectorMDRangeCTAD {
   using TeamHandle = TeamPolicy::member_type;
 
   KOKKOS_FUNCTION void operator()(TeamHandle const& team_handle) const {
+    // Rank 2 TeamVectorMDRange
     {
-      Kokkos::TeamVectorMDRange md_range(team_handle, 0, 0);
+      Kokkos::TeamVectorMDRange md_range1(team_handle, 1, 1);
       static_assert(
-          std::is_same_v<Kokkos::TeamVectorMDRange<Kokkos::Rank<2>, TeamHandle>,
-                         decltype(md_range)>);
-    }
-    {
-      Kokkos::TeamVectorMDRange md_range(team_handle, 0, 0, 0);
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<2>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamVectorMDRange md_range2(team_handle, {0, 0}, {1, 1});
       static_assert(
-          std::is_same_v<Kokkos::TeamVectorMDRange<Kokkos::Rank<3>, TeamHandle>,
-                         decltype(md_range)>);
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<2>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 2> lower{0, 0}, upper{1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<2>, TeamHandle, int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 3 TeamVectorMDRange
     {
-      Kokkos::TeamVectorMDRange md_range(team_handle, 0, 0, 0, 0);
+      Kokkos::TeamVectorMDRange md_range1(team_handle, 1, 1, 1);
       static_assert(
-          std::is_same_v<Kokkos::TeamVectorMDRange<Kokkos::Rank<4>, TeamHandle>,
-                         decltype(md_range)>);
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<3>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamVectorMDRange md_range2(team_handle, {0, 0, 0}, {1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<3>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 3> lower{0, 0, 0}, upper{1, 1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<3>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 4 TeamVectorMDRange
     {
-      Kokkos::TeamVectorMDRange md_range(team_handle, 0, 0, 0, 0, 0);
+      Kokkos::TeamVectorMDRange md_range1(team_handle, 1, 1, 1, 1);
       static_assert(
-          std::is_same_v<Kokkos::TeamVectorMDRange<Kokkos::Rank<5>, TeamHandle>,
-                         decltype(md_range)>);
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<4>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamVectorMDRange md_range2(team_handle, {0, 0, 0, 0}, {1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<4>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 4> lower{0, 0, 0, 0}, upper{1, 1, 1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<4>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 5 TeamVectorMDRange
     {
-      Kokkos::TeamVectorMDRange md_range(team_handle, 0, 0, 0, 0, 0, 0);
+      Kokkos::TeamVectorMDRange md_range1(team_handle, 1, 1, 1, 1, 1);
       static_assert(
-          std::is_same_v<Kokkos::TeamVectorMDRange<Kokkos::Rank<6>, TeamHandle>,
-                         decltype(md_range)>);
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<5>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamVectorMDRange md_range2(team_handle, {0, 0, 0, 0, 0}, {1, 1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<5>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 5> lower{0, 0, 0, 0, 0}, upper{1, 1, 1, 1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<5>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 6 TeamVectorMDRange
     {
-      Kokkos::TeamVectorMDRange md_range(team_handle, 0, 0, 0, 0, 0, 0, 0);
+      Kokkos::TeamVectorMDRange md_range1(team_handle, 1, 1, 1, 1, 1, 1);
       static_assert(
-          std::is_same_v<Kokkos::TeamVectorMDRange<Kokkos::Rank<7>, TeamHandle>,
-                         decltype(md_range)>);
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<6>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamVectorMDRange md_range2(team_handle, {0, 0, 0, 0, 0, 0}, {1, 1, 1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<6>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 6> lower{0, 0, 0, 0, 0, 0}, upper{1, 1, 1, 1, 1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<6>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 7 TeamVectorMDRange
     {
-      Kokkos::TeamVectorMDRange md_range(team_handle, 0, 0, 0, 0, 0, 0, 0, 0);
+      Kokkos::TeamVectorMDRange md_range1(team_handle, 1, 1, 1, 1, 1, 1, 1);
       static_assert(
-          std::is_same_v<Kokkos::TeamVectorMDRange<Kokkos::Rank<8>, TeamHandle>,
-                         decltype(md_range)>);
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<7>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamVectorMDRange md_range2(team_handle, {0, 0, 0, 0, 0, 0, 0}, {1, 1, 1, 1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<7>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 7> lower{0, 0, 0, 0, 0, 0, 0}, upper{1, 1, 1, 1, 1, 1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<7>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
+    }
+
+    // Rank 8 TeamVectorMDRange
+    {
+      Kokkos::TeamVectorMDRange md_range1(team_handle, 1, 1, 1, 1, 1, 1, 1, 1);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<8>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::TeamVectorMDRange md_range2(team_handle, {0, 0, 0, 0, 0, 0, 0, 0}, {1, 1, 1, 1, 1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<8>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 8> lower{0, 0, 0, 0, 0, 0, 0, 0}, upper{1, 1, 1, 1, 1, 1, 1, 1};
+      Kokkos::TeamVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::TeamVectorMDRange<Kokkos::Rank<8>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
   }
 
@@ -141,46 +366,165 @@ struct TestThreadVectorMDRangeCTAD {
   }
 
   KOKKOS_FUNCTION void operator()(TeamHandle const& team_handle) const {
+    // Rank 2 ThreadVectorMDRange
     {
-      Kokkos::ThreadVectorMDRange md_range(team_handle, 0, 0);
-      check_types<Kokkos::ThreadVectorMDRange<Kokkos::Rank<2>, TeamHandle>>(
-          md_range);
+      Kokkos::ThreadVectorMDRange md_range1(team_handle, 1, 1);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<2>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::ThreadVectorMDRange md_range2(team_handle, {0, 0}, {1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<2>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 2> lower{0, 0}, upper{1, 1};
+      Kokkos::ThreadVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<2>, TeamHandle, int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 3 ThreadVectorMDRange
     {
-      Kokkos::ThreadVectorMDRange md_range(team_handle, 0, 0, 0);
-      check_types<Kokkos::ThreadVectorMDRange<Kokkos::Rank<3>, TeamHandle>>(
-          md_range);
+      Kokkos::ThreadVectorMDRange md_range1(team_handle, 1, 1, 1);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<3>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::ThreadVectorMDRange md_range2(team_handle, {0, 0, 0}, {1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<3>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 3> lower{0, 0, 0}, upper{1, 1, 1};
+      Kokkos::ThreadVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<3>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 4 ThreadVectorMDRange
     {
-      Kokkos::ThreadVectorMDRange md_range(team_handle, 0, 0, 0, 0);
-      check_types<Kokkos::ThreadVectorMDRange<Kokkos::Rank<4>, TeamHandle>>(
-          md_range);
+      Kokkos::ThreadVectorMDRange md_range1(team_handle, 1, 1, 1, 1);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<4>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::ThreadVectorMDRange md_range2(team_handle, {0, 0, 0, 0}, {1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<4>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 4> lower{0, 0, 0, 0}, upper{1, 1, 1, 1};
+      Kokkos::ThreadVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<4>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 5 ThreadVectorMDRange
     {
-      Kokkos::ThreadVectorMDRange md_range(team_handle, 0, 0, 0, 0, 0);
-      check_types<Kokkos::ThreadVectorMDRange<Kokkos::Rank<5>, TeamHandle>>(
-          md_range);
+      Kokkos::ThreadVectorMDRange md_range1(team_handle, 1, 1, 1, 1, 1);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<5>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::ThreadVectorMDRange md_range2(team_handle, {0, 0, 0, 0, 0}, {1, 1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<5>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 5> lower{0, 0, 0, 0, 0}, upper{1, 1, 1, 1, 1};
+      Kokkos::ThreadVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<5>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 6 ThreadVectorMDRange
     {
-      Kokkos::ThreadVectorMDRange md_range(team_handle, 0, 0, 0, 0, 0, 0);
-      check_types<Kokkos::ThreadVectorMDRange<Kokkos::Rank<6>, TeamHandle>>(
-          md_range);
+      Kokkos::ThreadVectorMDRange md_range1(team_handle, 1, 1, 1, 1, 1, 1);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<6>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::ThreadVectorMDRange md_range2(team_handle, {0, 0, 0, 0, 0, 0}, {1, 1, 1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<6>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 6> lower{0, 0, 0, 0, 0, 0}, upper{1, 1, 1, 1, 1, 1};
+      Kokkos::ThreadVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<6>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 7 ThreadVectorMDRange
     {
-      Kokkos::ThreadVectorMDRange md_range(team_handle, 0, 0, 0, 0, 0, 0, 0);
-      check_types<Kokkos::ThreadVectorMDRange<Kokkos::Rank<7>, TeamHandle>>(
-          md_range);
+      Kokkos::ThreadVectorMDRange md_range1(team_handle, 1, 1, 1, 1, 1, 1, 1);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<7>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::ThreadVectorMDRange md_range2(team_handle, {0, 0, 0, 0, 0, 0, 0}, {1, 1, 1, 1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<7>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 7> lower{0, 0, 0, 0, 0, 0, 0}, upper{1, 1, 1, 1, 1, 1, 1};
+      Kokkos::ThreadVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<7>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
 
+    // Rank 8 ThreadVectorMDRange
     {
-      Kokkos::ThreadVectorMDRange md_range(team_handle, 0, 0, 0, 0, 0, 0, 0, 0);
-      check_types<Kokkos::ThreadVectorMDRange<Kokkos::Rank<8>, TeamHandle>>(
-          md_range);
+      Kokkos::ThreadVectorMDRange md_range1(team_handle, 1, 1, 1, 1, 1, 1, 1, 1);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<8>, TeamHandle,
+                                        std::integral_constant<int, 0>, int>,
+              decltype(md_range1)>);
+
+      Kokkos::ThreadVectorMDRange md_range2(team_handle, {0, 0, 0, 0, 0, 0, 0, 0}, {1, 1, 1, 1, 1, 1, 1, 1});
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<8>, TeamHandle, int, int>,
+              decltype(md_range2)>);
+
+      Kokkos::Array<int64_t, 8> lower{0, 0, 0, 0, 0, 0, 0, 0}, upper{1, 1, 1, 1, 1, 1, 1, 1};
+      Kokkos::ThreadVectorMDRange md_range3(team_handle, lower, upper);
+      static_assert(
+          std::is_same_v<
+              Kokkos::ThreadVectorMDRange<Kokkos::Rank<8>, TeamHandle,  int64_t, int64_t>,
+              decltype(md_range3)>);
     }
   }
 

@@ -85,6 +85,7 @@ set(BENCHMARK_SOURCES
     PerfTest_MallocFree.cpp
     PerfTest_Stream.cpp
     PerfTestMDRange_Stencil.cpp
+    PerfTestTeamMDRange_Stencil.cpp
     PerfTest_ViewAllocate.cpp
     PerfTest_ViewCopy_a123.cpp
     PerfTest_ViewCopy_b123.cpp
@@ -122,6 +123,9 @@ set(BENCHMARK_SOURCES
 )
 
 kokkos_add_benchmark(PerformanceTest_Benchmark SOURCES ${BENCHMARK_SOURCES})
+
+kokkos_add_benchmark(PerformanceTest_TeamMDRange SOURCES PerfTestTeamMDRange_Stencil.cpp)
+kokkos_add_benchmark(PerformanceTest_MDRangePolicy_Stencil SOURCES PerfTestMDRange_Stencil.cpp)
 
 kokkos_add_benchmark(Benchmark_Atomic_MinMax SOURCES test_atomic_minmax_simple.cpp)
 

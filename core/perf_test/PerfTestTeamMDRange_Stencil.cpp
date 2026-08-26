@@ -25,14 +25,17 @@ struct LayoutToIterationPattern<Kokkos::LayoutLeft> {
 };
 
 template <typename ScalarType, typename ViewType>
-void check_computation_3d_stencil(const ViewType& A, const ViewType& B,
-                                  int league, int n0, int n1, int n2) {
+void check_computation_3d_stencil(const ViewType& A, const ViewType& B) {
   int num_errors = 0;
   auto Ahost     = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), A);
   auto Bhost     = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), B);
 
   ScalarType epsilon = std::numeric_limits<ScalarType>::epsilon() * 100;
-  for (int l = 0; l < league; ++l) {
+
+  const int league_size = Ahost.extent_int(0);
+  const int n0 = Ahost.extent_int(1) - 2, n1 = Ahost.extent_int(2) - 2,
+            n2 = Ahost.extent_int(3) - 2;
+  for (int l = 0; l < league_size; ++l) {
     for (int i = 1; i < n0 + 1; ++i) {
       for (int j = 1; j < n1 + 1; ++j) {
         for (int k = 1; k < n2 + 1; ++k) {
@@ -60,7 +63,7 @@ void check_computation_3d_stencil(const ViewType& A, const ViewType& B,
   }
 }
 
-template <class DeviceType, typename TestLayout = Kokkos::LayoutRight,
+template <class DeviceType, int Dimension, typename TestLayout = Kokkos::LayoutRight,
           typename ScalarType = double>
 struct TeamThreadMDRangeStencil {
   using execution_space = DeviceType;
@@ -69,17 +72,15 @@ struct TeamThreadMDRangeStencil {
   using team_member     = typename team_policy::member_type;
   using view_type       = Kokkos::View<ScalarType****, TestLayout, DeviceType>;
 
-  static constexpr int dimension = 4;
+  static constexpr int dimension = Dimension;
 
   view_type A;
   view_type B;
-  const int m_n0;
-  const int m_n1;
-  const int m_n2;
+  const Kokkos::Array<int, dimension> ranges;
 
-  TeamThreadMDRangeStencil(const view_type& A_, const view_type& B_, int n0,
-                           int n1, int n2)
-      : A(A_), B(B_), m_n0(n0), m_n1(n1), m_n2(n2) {}
+  TeamThreadMDRangeStencil(const view_type& A_, const view_type& B_,
+                           const Kokkos::Array<int, dimension>& dims)
+      : A(A_), B(B_), ranges(dims) {}
 
   KOKKOS_INLINE_FUNCTION
   void operator()(const team_member& team) const {
@@ -89,7 +90,7 @@ struct TeamThreadMDRangeStencil {
 
     const int league_rank = team.league_rank();
     auto team_range =
-        Kokkos::TeamThreadMDRange<rank_type, team_member>(team, m_n0, m_n1, m_n2);
+        Kokkos::TeamThreadMDRange<rank_type, team_member>(team, ranges[0], ranges[1], ranges[2]);
 
     Kokkos::parallel_for(team_range, [=, this](int i0, int i1, int i2) {
       i0++;
@@ -109,7 +110,7 @@ struct TeamThreadMDRangeStencil {
   }
 };
 
-template <class DeviceType, typename TestLayout = Kokkos::LayoutRight,
+template <class DeviceType, int Dimension, typename TestLayout = Kokkos::LayoutRight,
           typename ScalarType = double>
 struct TeamVectorMDRangeStencil {
   using execution_space = DeviceType;
@@ -118,17 +119,15 @@ struct TeamVectorMDRangeStencil {
   using team_member     = typename team_policy::member_type;
   using view_type       = Kokkos::View<ScalarType****, TestLayout, DeviceType>;
 
-  static constexpr int dimension = 4;
+  static constexpr int dimension = Dimension;
 
   view_type A;
   view_type B;
-  const int m_n0;
-  const int m_n1;
-  const int m_n2;
+  const Kokkos::Array<int, dimension> ranges;
 
-  TeamVectorMDRangeStencil(const view_type& A_, const view_type& B_, int n0,
-                           int n1, int n2)
-      : A(A_), B(B_), m_n0(n0), m_n1(n1), m_n2(n2) {}
+  TeamVectorMDRangeStencil(const view_type& A_, const view_type& B_,
+                           const Kokkos::Array<int, dimension>& dims)
+      : A(A_), B(B_), ranges(dims) {}
 
   KOKKOS_INLINE_FUNCTION
   void operator()(const team_member& team) const {
@@ -138,7 +137,7 @@ struct TeamVectorMDRangeStencil {
 
     const int league_rank = team.league_rank();
     auto team_range =
-        Kokkos::TeamVectorMDRange<rank_type, team_member>(team, m_n0, m_n1, m_n2);
+        Kokkos::TeamVectorMDRange<rank_type, team_member>(team, ranges[0], ranges[1], ranges[2]);
 
     Kokkos::parallel_for(team_range, [=, this](int i0, int i1, int i2) {
       i0++;
@@ -159,7 +158,7 @@ struct TeamVectorMDRangeStencil {
   }
 };
 
-template <class DeviceType, typename TestLayout = Kokkos::LayoutRight,
+template <class DeviceType, int Dimension, typename TestLayout = Kokkos::LayoutRight,
           typename ScalarType = double>
 struct ThreadVectorMDRangeStencil {
   using execution_space = DeviceType;
@@ -168,17 +167,15 @@ struct ThreadVectorMDRangeStencil {
   using team_member     = typename team_policy::member_type;
   using view_type = Kokkos::View<ScalarType****, TestLayout, DeviceType>;
 
-  static constexpr int dimension = 4;
+  static constexpr int dimension = Dimension;
 
   view_type A;
   view_type B;
-  const int m_n0;
-  const int m_n1;
-  const int m_n2;
+  const Kokkos::Array<int, dimension> ranges;
 
-  ThreadVectorMDRangeStencil(const view_type& A_, const view_type& B_, int n0,
-                             int n1, int n2)
-      : A(A_), B(B_), m_n0(n0), m_n1(n1), m_n2(n2) {}
+  ThreadVectorMDRangeStencil(const view_type& A_, const view_type& B_,
+                             const Kokkos::Array<int, dimension>& dims)
+      : A(A_), B(B_), ranges(dims) {}
 
   KOKKOS_INLINE_FUNCTION
   void operator()(const team_member& team) const {
@@ -187,12 +184,12 @@ struct ThreadVectorMDRangeStencil {
     using rank_type = Kokkos::Rank<2, iteration_pattern, iteration_pattern>;
 
     const int league_rank = team.league_rank();
-    auto team_thread_range = Kokkos::TeamThreadRange(team, m_n0);
+    auto team_thread_range = Kokkos::TeamThreadRange(team, ranges[0]);
 
     Kokkos::parallel_for(team_thread_range, [=, this](int i0) {
       const int i = i0 + 1;
       auto vector_md_range =
-          Kokkos::ThreadVectorMDRange<rank_type, team_member>(team, m_n1, m_n2);
+          Kokkos::ThreadVectorMDRange<rank_type, team_member>(team, ranges[1], ranges[2]);
 
       Kokkos::parallel_for(vector_md_range, [=, this](int i1, int i2) {
         i1++;
@@ -216,19 +213,23 @@ struct ThreadVectorMDRangeStencil {
   }
 };
 
-template <typename FunctorType>
-void bench_team_mdrange_3d(benchmark::State& state) {
+template <typename FunctorType, std::size_t... Idx>
+void bench_team_mdrange_3d(benchmark::State& state, std::index_sequence<Idx...>) {
   using execution_space = typename FunctorType::execution_space;
   using view_type       = typename FunctorType::view_type;
 
   const int league_size = static_cast<int>(state.range(0));
-  const int size        = static_cast<int>(state.range(1));
+
+  Kokkos::Array<int, FunctorType::dimension> dims;
+  for (std::size_t i = 0; i < dims.size(); i++) {
+    dims[i]  = state.range(1);
+  }
 
   state.counters["league_size"] = league_size;
-  state.counters["size"]        = size;
+  state.counters["size"]        = dims[0];
 
-  view_type Atest("Atest", league_size, size + 2, size + 2, size + 2);
-  view_type Btest("Btest", league_size, size + 2, size + 2, size + 2);
+  view_type Atest("Atest", league_size, (dims[Idx] + 2)...);
+  view_type Btest("Btest", league_size, (dims[Idx] + 2)...);
 
   Kokkos::deep_copy(Atest, 1.0);
   execution_space().fence();
@@ -239,38 +240,44 @@ void bench_team_mdrange_3d(benchmark::State& state) {
 
   for (auto _ : state) {
     Kokkos::Timer timer;
-    Kokkos::parallel_for(policy, FunctorType(Atest, Btest, size, size, size));
+    Kokkos::parallel_for(policy, FunctorType(Atest, Btest, dims));
     execution_space().fence();
     const double dt = timer.seconds();
     state.SetIterationTime(dt);
   }
 
   check_computation_3d_stencil<typename FunctorType::scalar_type>(
-      Atest, Btest, league_size, size, size, size);
+      Atest, Btest);
+}
+
+template <typename FunctorType>
+void bench_team_mdrange_3d(benchmark::State& state) {
+  bench_team_mdrange_3d<FunctorType>(
+      state, std::make_index_sequence<FunctorType::dimension>());
 }
 
 #if !defined(KOKKOS_ENABLE_BENCHMARKS_HEAVY)
-#define TEAM_MDRANGE_STENCIL_BENCHMARK(functor, layout, fn, ...)          \
-  BENCHMARK(fn<functor<TEST_EXECSPACE, Kokkos::layout>>)                  \
+#define TEAM_MDRANGE_STENCIL_BENCHMARK(functor, dim, layout, fn, ...)          \
+  BENCHMARK(fn<functor<TEST_EXECSPACE, dim, Kokkos::layout>>)                  \
       ->UseManualTime()                                                    \
       ->Unit(benchmark::kMillisecond)                                      \
-      ->Name("TeamMDRangeStencil_" #functor "_" #layout)                 \
+      ->Name("TeamMDRangeStencil_" #dim "D_" #functor "_" #layout)                 \
       ->ArgNames({"league_size", "size"})                                \
       ->ArgsProduct({__VA_ARGS__})                                         \
       ->Iterations(1);
 
-TEAM_MDRANGE_STENCIL_BENCHMARK(TeamThreadMDRangeStencil, LayoutRight,
+TEAM_MDRANGE_STENCIL_BENCHMARK(TeamThreadMDRangeStencil, 3, LayoutRight,
                                bench_team_mdrange_3d, {16}, {48})
-TEAM_MDRANGE_STENCIL_BENCHMARK(TeamVectorMDRangeStencil, LayoutRight,
+TEAM_MDRANGE_STENCIL_BENCHMARK(TeamVectorMDRangeStencil, 3, LayoutRight,
                                bench_team_mdrange_3d, {16}, {48})
-TEAM_MDRANGE_STENCIL_BENCHMARK(ThreadVectorMDRangeStencil, LayoutRight,
+TEAM_MDRANGE_STENCIL_BENCHMARK(ThreadVectorMDRangeStencil, 3, LayoutRight,
                                bench_team_mdrange_3d, {16}, {48})
 #else
-#define TEAM_MDRANGE_STENCIL_BENCHMARK(functor, layout, fn, ...)          \
-  BENCHMARK(fn<functor<TEST_EXECSPACE, Kokkos::layout>>)                  \
+#define TEAM_MDRANGE_STENCIL_BENCHMARK(functor, dim, layout, fn, ...)          \
+  BENCHMARK(fn<functor<TEST_EXECSPACE, dim, Kokkos::layout>>)                  \
       ->UseManualTime()                                                    \
       ->Unit(benchmark::kMillisecond)                                      \
-      ->Name("TeamMDRangeStencil_" #functor "_" #layout)                 \
+      ->Name("TeamMDRangeStencil_" #dim "D_" #functor "_" #layout)                 \
       ->ArgNames({"league_size", "size"})                                \
       ->ArgsProduct({__VA_ARGS__});
 
@@ -279,18 +286,18 @@ TEAM_MDRANGE_STENCIL_BENCHMARK(ThreadVectorMDRangeStencil, LayoutRight,
 #define SIZES_3D \
   { 32, 64, 96 }
 
-TEAM_MDRANGE_STENCIL_BENCHMARK(TeamThreadMDRangeStencil, LayoutRight,
+TEAM_MDRANGE_STENCIL_BENCHMARK(TeamThreadMDRangeStencil, 3, LayoutRight,
                                bench_team_mdrange_3d, LEAGUE_SIZES, SIZES_3D)
-TEAM_MDRANGE_STENCIL_BENCHMARK(TeamThreadMDRangeStencil, LayoutLeft,
+TEAM_MDRANGE_STENCIL_BENCHMARK(TeamThreadMDRangeStencil, 3, LayoutLeft,
                                bench_team_mdrange_3d, LEAGUE_SIZES, SIZES_3D)
-TEAM_MDRANGE_STENCIL_BENCHMARK(TeamVectorMDRangeStencil, LayoutRight,
+TEAM_MDRANGE_STENCIL_BENCHMARK(TeamVectorMDRangeStencil, 3, LayoutRight,
                                bench_team_mdrange_3d, LEAGUE_SIZES, SIZES_3D)
-TEAM_MDRANGE_STENCIL_BENCHMARK(TeamVectorMDRangeStencil, LayoutLeft,
+TEAM_MDRANGE_STENCIL_BENCHMARK(TeamVectorMDRangeStencil, 3, LayoutLeft,
                                bench_team_mdrange_3d, LEAGUE_SIZES, SIZES_3D)
-TEAM_MDRANGE_STENCIL_BENCHMARK(ThreadVectorMDRangeStencil, LayoutRight,
+TEAM_MDRANGE_STENCIL_BENCHMARK(ThreadVectorMDRangeStencil, 3, LayoutRight,
                                bench_team_mdrange_3d, LEAGUE_SIZES, \
                                SIZES_3D)
-TEAM_MDRANGE_STENCIL_BENCHMARK(ThreadVectorMDRangeStencil, LayoutLeft,
+TEAM_MDRANGE_STENCIL_BENCHMARK(ThreadVectorMDRangeStencil, 3, LayoutLeft,
                                bench_team_mdrange_3d, LEAGUE_SIZES, \
                                SIZES_3D)
 #undef LEAGUE_SIZES

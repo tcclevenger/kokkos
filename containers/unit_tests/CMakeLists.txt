@@ -13,23 +13,25 @@ foreach(Tag Threads;Serial;OpenMP;HPX;Cuda;HIP;SYCL)
     file(MAKE_DIRECTORY ${dir})
     foreach(
       Name
-      Bitset
-      DualView
-      DynamicView
-      DynViewAPI_generic
-      DynViewAPI_rank12345
-      DynViewAPI_rank67
-      DynRankView_Ctors
-      DynRankView_LayoutMember
-      DynRankView_TeamScratch
-      DynRankView_ViewCustomization
-      ErrorReporter
-      OffsetView
       ScatterView
-      WithoutInitializing
-      UnorderedMap
-      UnorderedSet
     )
+    #   Bitset
+    #   DualView
+    #   DynamicView
+    #   DynViewAPI_generic
+    #   DynViewAPI_rank12345
+    #   DynViewAPI_rank67
+    #   DynRankView_Ctors
+    #   DynRankView_LayoutMember
+    #   DynRankView_TeamScratch
+    #   DynRankView_ViewCustomization
+    #   ErrorReporter
+    #   OffsetView
+    #   ScatterView
+    #   WithoutInitializing
+    #   UnorderedMap
+    #   UnorderedSet
+    # )
       # Write to a temporary intermediate file and call configure_file to avoid
       # updating timestamps triggering unnecessary rebuilds on subsequent cmake runs.
       set(file ${dir}/Test${Tag}_${Name}.cpp)

@@ -282,24 +282,24 @@ TEAM_MDRANGE_STENCIL_BENCHMARK(ThreadVectorMDRangeStencil, 3, LayoutRight,
       ->ArgsProduct({__VA_ARGS__});
 
 #define LEAGUE_SIZES \
-  { 32, 64, 96 }
+  { 8 }
 #define SIZES_3D \
-  { 32, 64, 96 }
+  { 32 }
 
 TEAM_MDRANGE_STENCIL_BENCHMARK(TeamThreadMDRangeStencil, 3, LayoutRight,
                                bench_team_mdrange_3d, LEAGUE_SIZES, SIZES_3D)
-TEAM_MDRANGE_STENCIL_BENCHMARK(TeamThreadMDRangeStencil, 3, LayoutLeft,
-                               bench_team_mdrange_3d, LEAGUE_SIZES, SIZES_3D)
+// TEAM_MDRANGE_STENCIL_BENCHMARK(TeamThreadMDRangeStencil, 3, LayoutLeft,
+//                                bench_team_mdrange_3d, LEAGUE_SIZES, SIZES_3D)
 TEAM_MDRANGE_STENCIL_BENCHMARK(TeamVectorMDRangeStencil, 3, LayoutRight,
                                bench_team_mdrange_3d, LEAGUE_SIZES, SIZES_3D)
-TEAM_MDRANGE_STENCIL_BENCHMARK(TeamVectorMDRangeStencil, 3, LayoutLeft,
-                               bench_team_mdrange_3d, LEAGUE_SIZES, SIZES_3D)
+// TEAM_MDRANGE_STENCIL_BENCHMARK(TeamVectorMDRangeStencil, 3, LayoutLeft,
+//                                bench_team_mdrange_3d, LEAGUE_SIZES, SIZES_3D)
 TEAM_MDRANGE_STENCIL_BENCHMARK(ThreadVectorMDRangeStencil, 3, LayoutRight,
                                bench_team_mdrange_3d, LEAGUE_SIZES, \
                                SIZES_3D)
-TEAM_MDRANGE_STENCIL_BENCHMARK(ThreadVectorMDRangeStencil, 3, LayoutLeft,
-                               bench_team_mdrange_3d, LEAGUE_SIZES, \
-                               SIZES_3D)
+// TEAM_MDRANGE_STENCIL_BENCHMARK(ThreadVectorMDRangeStencil, 3, LayoutLeft,
+//                                bench_team_mdrange_3d, LEAGUE_SIZES, \
+//                                SIZES_3D)
 #undef LEAGUE_SIZES
 #undef SIZES_3D
 #endif

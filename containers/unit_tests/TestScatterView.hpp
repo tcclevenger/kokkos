@@ -15,6 +15,8 @@ import kokkos.scatter_view_impl;
 #endif
 #include <gtest/gtest.h>
 
+#include <Kokkos_Timer.hpp>
+
 namespace Test {
 
 template <typename DeviceType, typename Layout, typename Duplication,
@@ -761,14 +763,31 @@ void test_scatter_view(int64_t n) {
   TestDuplicatedScatterView<DeviceType, ScatterType, NumberType> duptest(n);
 }
 
-TEST(TEST_CATEGORY, scatterview) {
-  test_scatter_view<TEST_EXECSPACE, Kokkos::Experimental::ScatterSum, double>(
-      10);
+void get_and_print_stats(Kokkos::Timer& t, std::string label, int N) {
+  Kokkos::fence();
+  auto sec = t.seconds();
+  printf("  %s: size=%d, time=%f\n", label.c_str(), N, sec);
+}
 
+TEST(TEST_CATEGORY, scatterview) {
+  Kokkos::Timer timer;
+
+  timer.reset();
+  test_scatter_view<TEST_EXECSPACE, Kokkos::Experimental::ScatterSum, double>(10);
+  get_and_print_stats(timer, "TEST_EXEC, <ScatterSum, double>", 10);
+  timer.reset();
   test_scatter_view<TEST_EXECSPACE, Kokkos::Experimental::ScatterSum, int>(10);
+  get_and_print_stats(timer, "TEST_EXEC, <ScatterSum, int>", 10);
+  timer.reset();
   test_scatter_view<TEST_EXECSPACE, Kokkos::Experimental::ScatterProd>(10);
+  get_and_print_stats(timer, "TEST_EXEC, <ScatterProd, double>", 10);
+  timer.reset();
   test_scatter_view<TEST_EXECSPACE, Kokkos::Experimental::ScatterMin>(10);
+  get_and_print_stats(timer, "TEST_EXEC, <ScatterMin, double>", 10);
+  timer.reset();
   test_scatter_view<TEST_EXECSPACE, Kokkos::Experimental::ScatterMax>(10);
+  get_and_print_stats(timer, "TEST_EXEC, <ScatterMax, double>", 10);
+
   // tests were timing out in DEBUG mode, reduce the amount of work
 #ifdef KOKKOS_ENABLE_DEBUG
   int big_n = 100 * 1000;
@@ -792,24 +811,44 @@ TEST(TEST_CATEGORY, scatterview) {
 
 #endif
 
-  test_scatter_view<TEST_EXECSPACE, Kokkos::Experimental::ScatterSum, double>(
-      big_n);
-  test_scatter_view<TEST_EXECSPACE, Kokkos::Experimental::ScatterSum, int>(
-      big_n);
+  timer.reset();
+  test_scatter_view<TEST_EXECSPACE, Kokkos::Experimental::ScatterSum, double>(big_n);
+  get_and_print_stats(timer, "TEST_EXEC, <ScatterSum, double>", big_n);
+  timer.reset();
+  test_scatter_view<TEST_EXECSPACE, Kokkos::Experimental::ScatterSum, int>(big_n);
+  get_and_print_stats(timer, "TEST_EXEC, <ScatterSum, int>", big_n);
+  timer.reset();
   test_scatter_view<TEST_EXECSPACE, Kokkos::Experimental::ScatterProd>(big_n);
+  get_and_print_stats(timer, "TEST_EXEC, <ScatterProd, double>", big_n);
+  timer.reset();
   test_scatter_view<TEST_EXECSPACE, Kokkos::Experimental::ScatterMin>(big_n);
+  get_and_print_stats(timer, "TEST_EXEC, <ScatterMin, double>", big_n);
+  timer.reset();
   test_scatter_view<TEST_EXECSPACE, Kokkos::Experimental::ScatterMax>(big_n);
+  get_and_print_stats(timer, "TEST_EXEC, <ScatterMax, double>", big_n);
 }
 
 TEST(TEST_CATEGORY, scatterview_devicetype) {
   using device_type =
       Kokkos::Device<TEST_EXECSPACE, typename TEST_EXECSPACE::memory_space>;
 
+  Kokkos::Timer timer;
+
+  timer.reset();
   test_scatter_view<device_type, Kokkos::Experimental::ScatterSum, double>(10);
+  get_and_print_stats(timer, "Device, <ScatterSum, double>", 10);
+  timer.reset();
   test_scatter_view<device_type, Kokkos::Experimental::ScatterSum, int>(10);
+  get_and_print_stats(timer, "Device, <ScatterSum, int>", 10);
+  timer.reset();
   test_scatter_view<device_type, Kokkos::Experimental::ScatterProd>(10);
+  get_and_print_stats(timer, "Device, <ScatterProd, double>", 10);
+  timer.reset();
   test_scatter_view<device_type, Kokkos::Experimental::ScatterMin>(10);
+  get_and_print_stats(timer, "Device, <ScatterMin, double>", 10);
+  timer.reset();
   test_scatter_view<device_type, Kokkos::Experimental::ScatterMax>(10);
+  get_and_print_stats(timer, "Device, <ScatterMax, double>", 10);
 
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
 #ifdef KOKKOS_ENABLE_CUDA
@@ -824,23 +863,39 @@ TEST(TEST_CATEGORY, scatterview_devicetype) {
   if (std::is_same_v<TEST_EXECSPACE, device_execution_space>) {
     using device_device_type =
         Kokkos::Device<device_execution_space, device_memory_space>;
-    test_scatter_view<device_device_type, Kokkos::Experimental::ScatterSum,
-                      double>(10);
-    test_scatter_view<device_device_type, Kokkos::Experimental::ScatterSum,
-                      int>(10);
-    test_scatter_view<device_device_type, Kokkos::Experimental::ScatterProd>(
-        10);
+    timer.reset();
+    test_scatter_view<device_device_type, Kokkos::Experimental::ScatterSum, double>(10);
+    get_and_print_stats(timer, "Device-Device, <ScatterSum, double>", 10);
+    timer.reset();
+    test_scatter_view<device_device_type, Kokkos::Experimental::ScatterSum, int>(10);
+    get_and_print_stats(timer, "Device-Device, <ScatterSum, int>", 10);
+    timer.reset();
+    test_scatter_view<device_device_type, Kokkos::Experimental::ScatterProd>(10);
+    get_and_print_stats(timer, "Device-Device, <ScatterProd, double>", 10);
+    timer.reset();
     test_scatter_view<device_device_type, Kokkos::Experimental::ScatterMin>(10);
+    get_and_print_stats(timer, "Device-Device, <ScatterMin, double>", 10);
+    timer.reset();
     test_scatter_view<device_device_type, Kokkos::Experimental::ScatterMax>(10);
+    get_and_print_stats(timer, "Device-Device, <ScatterMax, double>", 10);
+
     using host_device_type =
         Kokkos::Device<device_execution_space, host_accessible_space>;
-    test_scatter_view<host_device_type, Kokkos::Experimental::ScatterSum,
-                      double>(10);
-    test_scatter_view<host_device_type, Kokkos::Experimental::ScatterSum, int>(
-        10);
+    timer.reset();
+    test_scatter_view<host_device_type, Kokkos::Experimental::ScatterSum, double>(10);
+    get_and_print_stats(timer, "Host-Device, <ScatterSum, double>", 10);
+    timer.reset();
+    test_scatter_view<host_device_type, Kokkos::Experimental::ScatterSum, int>(10);
+    get_and_print_stats(timer, "Host-Device, <ScatterSum, int>", 10);
+    timer.reset();
     test_scatter_view<host_device_type, Kokkos::Experimental::ScatterProd>(10);
+    get_and_print_stats(timer, "Host-Device, <ScatterProd, double>", 10);
+    timer.reset();
     test_scatter_view<host_device_type, Kokkos::Experimental::ScatterMin>(10);
+    get_and_print_stats(timer, "Host-Device, <ScatterMin, double>", 10);
+    timer.reset();
     test_scatter_view<host_device_type, Kokkos::Experimental::ScatterMax>(10);
+    get_and_print_stats(timer, "Host-Device, <ScatterMax, double>", 10);
   }
 #endif
 }

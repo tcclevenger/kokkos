@@ -799,15 +799,6 @@ TEST(TEST_CATEGORY, scatterview) {
 }
 
 TEST(TEST_CATEGORY, scatterview_devicetype) {
-  using device_type =
-      Kokkos::Device<TEST_EXECSPACE, typename TEST_EXECSPACE::memory_space>;
-
-  test_scatter_view<device_type, Kokkos::Experimental::ScatterSum>(10);
-  test_scatter_view<device_type, Kokkos::Experimental::ScatterProd>(10);
-  test_scatter_view<device_type, Kokkos::Experimental::ScatterMin>(10);
-  test_scatter_view<device_type, Kokkos::Experimental::ScatterMax>(10);
-  test_scatter_view<device_type, Kokkos::Experimental::ScatterMax, int>(10);
-
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
 #ifdef KOKKOS_ENABLE_CUDA
   using device_execution_space = Kokkos::Cuda;

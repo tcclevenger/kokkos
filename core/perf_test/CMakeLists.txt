@@ -123,6 +123,8 @@ set(BENCHMARK_SOURCES
     PerfTest_ViewResize_Raw.cpp
 )
 
+kokkos_add_benchmark(PerformanceTest_TeamMDRange SOURCES PerfTest_TeamMDRange.cpp)
+
 kokkos_add_benchmark(PerformanceTest_Benchmark SOURCES ${BENCHMARK_SOURCES})
 
 kokkos_add_benchmark(Benchmark_Atomic_MinMax SOURCES test_atomic_minmax_simple.cpp)

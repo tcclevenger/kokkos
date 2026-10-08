@@ -62,7 +62,7 @@ class CudaTeamMember {
   using execution_space      = Kokkos::Cuda;
   using scratch_memory_space = execution_space::scratch_memory_space;
   using team_handle          = CudaTeamMember;
-  using thread_handle        = ThreadHandleType<team_handle>;
+  using thread_handle        = CudaThreadHandle;
 
  private:
   mutable void* m_team_reduce;
@@ -118,6 +118,28 @@ class CudaTeamMember {
         else { __threadfence_block(); }            // team <= warp
         ))
   }
+
+  /** \brief Handle for thread-level parallelism within a team.*/
+  struct CudaThreadHandle {
+    using execution_space = typename member_type::execution_space;
+    using team_handle     = CudaTeamMember;
+    using thread_handle   = CudaThreadHandle;
+
+    team_handle const& team_member;
+
+    KOKKOS_INLINE_FUNCTION
+    constexpr CudaThreadHandle(team_handle const& m) : team_member(m) {}
+
+    KOKKOS_INLINE_FUNCTION
+    int team_rank() const { return team_member.team_rank(); }
+
+    KOKKOS_INLINE_FUNCTION
+    int team_size() const { return team_member.team_size(); }
+
+    /** \brief Maximum concurrency within this team thread (vector_length). */
+    KOKKOS_INLINE_FUNCTION
+    int concurrency() const { return team_member.vector_length(); }
+  };
 
   //--------------------------------------------------------------------------
 
@@ -502,7 +524,7 @@ KOKKOS_INLINE_FUNCTION void parallel_for(
   (void)loop_boundaries;
   (void)closure;
   KOKKOS_IF_ON_DEVICE((
-      using thread_handle_t = Impl::ThreadHandleType<Impl::CudaTeamMember>;
+      using thread_handle_t = Impl::CudaThreadHandle;
       if constexpr (std::is_invocable_v<Closure, iType>) {
         for (iType i = loop_boundaries.start + threadIdx.y;
              i < loop_boundaries.end; i += blockDim.y)
@@ -517,7 +539,7 @@ KOKKOS_INLINE_FUNCTION void parallel_for(
       } else {
         static_assert(Kokkos::Impl::always_false<Closure>::value,
                       "Kokkos::parallel_for(TeamThreadRange): closure must be "
-                      "invocable with (iType) or (ThreadHandleType, iType)");
+                      "invocable with (iType) or (team_member_t::thread_handle, iType)");
       }))
 }
 

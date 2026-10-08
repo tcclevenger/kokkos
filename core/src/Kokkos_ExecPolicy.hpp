@@ -40,34 +40,6 @@ template <typename... Properties>
 class RangePolicy;
 
 namespace Impl {
-
-/** \brief Handle for thread-level parallelism within a team.
- *
- *  Use with RangePolicy to parallelize within a thread using vector resources
- *  (ThreadVectorRange semantics).
- *  The concept is Kokkos::Experimental::ThreadHandle.
- */
-template <class TeamMemberType>
-struct ThreadHandleType {
-  TeamMemberType const& team_member;
-  using member_type     = TeamMemberType;
-  using execution_space = typename TeamMemberType::execution_space;
-  using thread_handle   = ThreadHandleType;
-
-  KOKKOS_INLINE_FUNCTION
-  constexpr ThreadHandleType(TeamMemberType const& m) : team_member(m) {}
-
-  KOKKOS_INLINE_FUNCTION
-  int team_rank() const { return team_member.team_rank(); }
-
-  KOKKOS_INLINE_FUNCTION
-  int team_size() const { return team_member.team_size(); }
-
-  /** \brief Maximum concurrency within this team thread (vector_length). */
-  KOKKOS_INLINE_FUNCTION
-  int concurrency() const { return team_member.vector_length(); }
-};
-
 // Private tag that can be used to make a copy of another execution policy
 // and set the underlying execution space instance.
 // It does NOT perform any sanity check.
@@ -356,7 +328,6 @@ class ImplRangePolicy<ExecSpace, Properties...>
 };
 
 }  // namespace Impl
-
 }  // namespace Kokkos
 
 //----------------------------------------------------------------------------

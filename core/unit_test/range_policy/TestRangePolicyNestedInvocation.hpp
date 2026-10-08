@@ -126,8 +126,6 @@ struct CheckRangePolicyWithTeamHandle {
   }
 };
 
-#if KOKKOS_IMPL_THREAD_HANDLE_TESTS
-
 template <class ExecSpace>
 struct CheckRangePolicyWithThreadHandle {
   void operator()() const {
@@ -159,6 +157,8 @@ struct CheckRangePolicyWithThreadHandle {
     verify<ExecSpace>(M, 3.f, "check_range_policy_with_thread_handle");
   }
 };
+
+#if KOKKOS_IMPL_THREAD_HANDLE_TESTS
 
 template <class ExecSpace>
 struct CheckRangePolicyWithConstructedThreadHandle {
@@ -226,11 +226,11 @@ TEST(TEST_CATEGORY, self_similar_range_policy_with_team_handle) {
   CheckRangePolicyWithTeamHandle<TEST_EXECSPACE>{}();
 }
 
-#if KOKKOS_IMPL_THREAD_HANDLE_TESTS
-
 TEST(TEST_CATEGORY, self_similar_range_policy_with_thread_handle) {
   CheckRangePolicyWithThreadHandle<TEST_EXECSPACE>{}();
 }
+
+#if KOKKOS_IMPL_THREAD_HANDLE_TESTS
 
 TEST(TEST_CATEGORY, self_similar_range_policy_with_constructed_thread_handle) {
   CheckRangePolicyWithConstructedThreadHandle<TEST_EXECSPACE>{}();
